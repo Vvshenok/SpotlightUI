@@ -46,7 +46,6 @@ SpotlightUI is actively maintained and continuously improved. This page outlines
 - **Branching Tutorials** - Create multiple tutorial paths based on user choices
 - **Voice-Over Integration** - Play audio clips with tutorial steps
 - **World Space UI** - Spotlight billboard GUIs attached to parts
-- **Save/Resume Progress** - Automatically save tutorial progress across sessions
 
 ### Polish & Accessibility
 - **High Contrast Mode** - Improved visibility for accessibility
@@ -63,17 +62,10 @@ Have a feature request? Open an issue on [GitHub](https://github.com/Vvshenok/Sp
 ### Top Community Requests
 - Particle effects around spotlights (sparkles, glow, confetti)
 - Tooltip system for quick hints
-- Integration with popular UI libraries
+- Integration with popular UI/State libraries (Fusion, Roact, Roblox-TS, React-Lua)
 - More shape options (hexagon, star, arrow)
 - Custom easing functions for animations
 
 ---
 
-## Contributing
-
-Want to help build these features? Contributions are welcome! Check out the [Contributing Guide](https://github.com/Vvshenok/SpotlightUI/blob/main/CONTRIBUTING.md) to get started.
-
----
-
 **Last Updated:** January 17, 2026
-```
