@@ -18,7 +18,6 @@ Get the SpotlightUI ModuleScript from
 
 **Other Links:**
 
-<a href=https://vvshenok.github.io/SpotlightUI/
- target=_blank>Documentation / Examples</a><br>
-<a href=https://devforum.roblox.com/t/spotlightui-%E2%80%93-guided-focus-module/4267581?u=vvshenok target=_blank>DevForum</a><br>
-<a href=https://www.roblox.com/library/129622955142483 target=_blank>Roblox</a>
+<a href="https://vvshenok.github.io/SpotlightUI/" target="_blank">Documentation / Examples</a><br>
+<a href="https://devforum.roblox.com/t/spotlightui-guided-focus-module/3355048" target="_blank">DevForum</a><br>
+<a href="https://www.roblox.com/library/129622955142483" target="_blank">Roblox</a>
