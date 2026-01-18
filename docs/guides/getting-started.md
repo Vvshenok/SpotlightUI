@@ -25,10 +25,8 @@ local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local MyGui = PlayerGui:WaitForChild("ScreenGui")
 local Button = MyGui:WaitForChild("StartButton")
 
--- Or reference a part in the workspace
 local ImportantDoor = workspace:WaitForChild("TutorialDoor")
 
--- Create a new Spotlight instance
 local Spotlight = SpotlightUI.new()
 ```
 
@@ -59,8 +57,8 @@ You can chain additional methods to customize the appearance:
 
 ```lua
 Spotlight
-    :SetShape("Circle")        -- Options: "Circle", "Square", "Triangle"
-    :EnablePulse(10)           -- Adds a pulsing animation (10 pixel expansion)
+    :SetShape("Circle")        
+    :EnablePulse(10)           
     :FocusUI(Button, 20, "Click this button to start!")
     :Show()
 ```
@@ -147,10 +145,8 @@ Each step is a table with the following optional properties:
 The tutorial automatically starts with the first step when you call `:Start()`. To manually advance:
 
 ```lua
--- Advance to next step
 Spotlight:Next()
 
--- Skip the entire tutorial
 Spotlight:Skip()
 ```
 
@@ -159,15 +155,12 @@ Spotlight:Skip()
 You can react to tutorial progress using signals:
 
 ```lua
--- Fires when each step is completed
 Spotlight.stepCompleted:Connect(function(stepIndex)
     print("Completed step:", stepIndex)
 end)
 
--- Fires when the entire sequence finishes
 Spotlight.sequenceCompleted:Connect(function()
     print("Tutorial complete!")
-    -- Award player or save progress
 end)
 ```
 
@@ -184,7 +177,6 @@ Spotlight:SetSteps({
     { UI = gui.SettingsButton, Text = "Customize your settings", Shape = "Circle" }
 })
 
--- Advance when player clicks the right button
 gui.PlayButton.Activated:Connect(function()
     if Spotlight._stepIndex == 1 then
         Spotlight:Next()
@@ -215,16 +207,13 @@ You can combine both approaches for maximum flexibility:
 ```lua
 local Spotlight = SpotlightUI.new()
 
--- Start with a single spotlight
 Spotlight
     :FocusUI(gui.WelcomeScreen.CloseButton, 20, "Close this to begin")
     :Show()
 
--- When player closes welcome screen, start the tutorial
 gui.WelcomeScreen.CloseButton.Activated:Connect(function()
     gui.WelcomeScreen.Visible = false
     
-    -- Now start step-based tutorial
     Spotlight:SetSteps({
         { Part = workspace.SpawnLocation, Text = "This is your spawn", Shape = "Circle" },
         { UI = gui.HealthBar, Text = "This is your health", Shape = "Square", Padding = 10 },
@@ -241,8 +230,8 @@ end)
 When you're done with a spotlight, always clean it up:
 
 ```lua
-Spotlight:Hide()  -- Hides the spotlight
-Spotlight:Destroy()  -- Completely removes it and cleans up connections
+Spotlight:Hide()
+Spotlight:Destroy()
 ```
 
 The `Destroy()` method uses Janitor internally to ensure all connections and tweens are properly cleaned up.
@@ -272,10 +261,8 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
 
--- Create the spotlight
 local Tutorial = SpotlightUI.new()
 
--- Set up the tutorial steps
 Tutorial:SetSteps({
     {
         Part = character:WaitForChild("HumanoidRootPart"),
@@ -303,20 +290,17 @@ Tutorial:SetSteps({
     }
 })
 
--- Listen for completion
 Tutorial.stepCompleted:Connect(function(step)
     print("Player completed step:", step)
-    task.wait(3)  -- Wait 3 seconds before next step
+    task.wait(3)
     Tutorial:Next()
 end)
 
 Tutorial.sequenceCompleted:Connect(function()
     print("Tutorial finished!")
-    -- Save that player completed tutorial
     player:SetAttribute("CompletedTutorial", true)
 end)
 
--- Start the tutorial
 Tutorial:Start()
 ```
 

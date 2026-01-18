@@ -14,13 +14,13 @@ Building effective tutorials shouldn't require hundreds of lines of code. Spotli
 
 ### Key Features
 
-- **🎯 Multiple Spotlight Shapes** - Circle, Square, and Triangle spotlights
-- **🌍 World & UI Support** - Highlight both 3D world objects and GUI elements
-- **✨ Real-time Tracking** - Spotlights automatically follow moving objects
-- **💫 Pulse Animations** - Draw attention with customizable pulsing effects
-- **📚 Step-based System** - Create multi-step tutorials with ease
-- **🔗 Chainable API** - Fluent interface for readable, maintainable code
-- **🧹 Automatic Cleanup** - Built-in Janitor integration for memory safety
+- **Multiple Spotlight Shapes** - Circle, Square, and Triangle spotlights
+- **World & UI Support** - Highlight both 3D world objects and GUI elements
+- **Real-time Tracking** - Spotlights automatically follow moving objects
+- **Pulse Animations** - Draw attention with customizable pulsing effects
+- **Step-based System** - Create multi-step tutorials with ease
+- **Chainable API** - Fluent interface for readable, maintainable code
+- **Automatic Cleanup** - Built-in Janitor integration for memory safety
 
 ## Quick Example
 
@@ -69,5 +69,5 @@ Licensed under MIT - feel free to use in your projects!
 ---
 
 <div style="text-align: center; margin-top: 3rem; color: #666;">
-  <p>Made by Vvshenok, Usefuly Rblx Community Resource.</p>
+  <p>Made for the Roblox developer community</p>
 </div>

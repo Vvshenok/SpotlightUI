@@ -37,7 +37,6 @@ spotlight
     :EnablePulse(15)
     :Show()
 
--- Hide when player gets close
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
@@ -86,7 +85,6 @@ spotlight:SetSteps({
     }
 })
 
--- Auto-advance as player reaches each waypoint
 local character = player.Character
 local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
@@ -95,7 +93,6 @@ spotlight.stepCompleted:Connect(function(stepIndex)
     
     local targetWaypoint = waypoints[stepIndex]
     
-    -- Wait until player reaches waypoint
     repeat
         task.wait(0.5)
     until (hrp.Position - targetWaypoint.Position).Magnitude < 10
@@ -144,13 +141,11 @@ local function MarkQuestObjective(objectivePart, description)
     return marker
 end
 
--- Usage
 local questMarker = MarkQuestObjective(
     workspace.QuestItems.MagicCrystal,
     "Collect the magic crystal"
 )
 
--- Remove when collected
 workspace.QuestItems.MagicCrystal.Touched:Connect(function(hit)
     if hit.Parent:FindFirstChild("Humanoid") then
         questMarker:Hide()
@@ -209,7 +204,6 @@ spotlight
     :EnablePulse(15)
     :Show()
 
--- Hide once player is on train
 while task.wait(0.5) do
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
@@ -233,10 +227,9 @@ local spotlight = SpotlightUI.new()
 spotlight
     :SetShape("Triangle")
     :FollowPart(workspace.SafeZone, "Get to the safe zone!")
-    :EnablePulse(20)  -- Dramatic pulse for urgency
+    :EnablePulse(20)
     :Show()
 
--- Add countdown timer
 local timeLeft = 30
 
 while timeLeft > 0 do
@@ -244,7 +237,6 @@ while timeLeft > 0 do
     timeLeft -= 1
     
     if timeLeft <= 10 then
-        -- Increase pulse intensity
         spotlight:DisablePulse():EnablePulse(25)
     end
 end
@@ -273,7 +265,6 @@ local function CreateObjectiveMarker(part, text, priority)
     return marker
 end
 
--- Create markers for different objectives
 objectiveMarkers.primary = CreateObjectiveMarker(
     workspace.PrimaryObjective,
     "Main quest objective",
@@ -286,7 +277,6 @@ objectiveMarkers.secondary = CreateObjectiveMarker(
     8
 )
 
--- Clean up when objectives complete
 local function CompleteObjective(name)
     if objectiveMarkers[name] then
         objectiveMarkers[name]:Hide()
@@ -318,7 +308,6 @@ spotlight
     :EnablePulse(15)
     :Show()
 
--- Update as player passes checkpoints
 for _, checkpoint in checkpoints do
     checkpoint.Touched:Connect(function(hit)
         if hit.Parent:FindFirstChild("Humanoid") then
@@ -328,7 +317,7 @@ for _, checkpoint in checkpoints do
                 spotlight
                     :FollowPart(checkpoints[currentCheckpoint], "Checkpoint " .. currentCheckpoint)
             else
-                spotlight:Hide()  -- Race complete
+                spotlight:Hide()
             end
         end
     end)
@@ -351,7 +340,6 @@ local function CreateTreasureHint(treasure)
         :EnablePulse(12)
         :Show()
     
-    -- Remove when collected
     treasure.Touched:Connect(function(hit)
         if hit.Parent:FindFirstChild("Humanoid") then
             hint:Hide()
@@ -361,7 +349,6 @@ local function CreateTreasureHint(treasure)
     end)
 end
 
--- Create hints for all nearby treasures
 for _, treasure in workspace.Treasures:GetChildren() do
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
@@ -389,7 +376,6 @@ local function WarnAboutDanger(threat, description)
         :Show()
 end
 
--- Detect nearby enemies
 while task.wait(1) do
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")

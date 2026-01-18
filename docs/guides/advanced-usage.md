@@ -31,7 +31,6 @@ local function startBuildingTutorial()
     building:Start()
 end
 
--- Branch based on player choice
 gui.CombatButton.Activated:Connect(startCombatTutorial)
 gui.BuildingButton.Activated:Connect(startBuildingTutorial)
 ```
@@ -48,7 +47,6 @@ TutorialManager.currentPhase = 0
 TutorialManager.spotlights = {}
 
 function TutorialManager:StartPhase(phase)
-    -- Clean up previous spotlight
     if self.spotlights[self.currentPhase] then
         self.spotlights[self.currentPhase]:Destroy()
     end
@@ -81,7 +79,6 @@ function TutorialManager:StartPhase(phase)
     spotlight:Start()
 end
 
--- Trigger phases based on game events
 player:GetAttributeChangedSignal("Level"):Connect(function()
     local level = player:GetAttribute("Level")
     if level == 5 and not player:GetAttribute("TutorialPhase2") then
@@ -105,7 +102,6 @@ local spotlight = SpotlightUI.new()
 local currentStepIndex = 0
 local stepValidations = {}
 
--- Define validation functions for each step
 stepValidations[1] = function()
     return gui.PlayButton.Activated:Wait()
 end
@@ -115,7 +111,6 @@ stepValidations[2] = function()
 end
 
 stepValidations[3] = function()
-    -- Wait until player reaches a position
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
@@ -134,14 +129,12 @@ spotlight:SetSteps({
 spotlight.stepCompleted:Connect(function(stepIndex)
     currentStepIndex = stepIndex
     
-    -- Wait for validation before advancing
     if stepValidations[stepIndex] then
         task.spawn(function()
             stepValidations[stepIndex]()
             spotlight:Next()
         end)
     else
-        -- Auto-advance if no validation
         task.wait(2)
         spotlight:Next()
     end
@@ -161,17 +154,14 @@ local TutorialSystem = {}
 TutorialSystem.hasSeenTutorial = {}
 
 function TutorialSystem:ShouldShowTutorial(tutorialName)
-    -- Check if player has disabled tutorials
     if player:GetAttribute("TutorialsDisabled") then
         return false
     end
     
-    -- Check if player has seen this specific tutorial
     if self.hasSeenTutorial[tutorialName] then
         return false
     end
     
-    -- Check if player is experienced enough to skip
     local level = player:GetAttribute("Level") or 1
     if tutorialName == "Basic" and level > 5 then
         return false
@@ -198,7 +188,6 @@ function TutorialSystem:ShowShopTutorial()
     spotlight:Start()
 end
 
--- Trigger when player opens shop for first time
 gui.ShopButton.Activated:Connect(function()
     TutorialSystem:ShowShopTutorial()
 end)
@@ -211,14 +200,10 @@ end)
 Add buttons or interactive elements to spotlight hints.
 
 ```lua
--- Note: This requires modifying the hint frame, shown here conceptually
-
 local spotlight = SpotlightUI.new()
 
--- Access internal hint frame (advanced usage)
 local hint = spotlight._hint
 
--- Add a skip button
 local skipButton = Instance.new("TextButton")
 skipButton.Size = UDim2.new(0, 60, 0, 25)
 skipButton.Position = UDim2.new(1, -70, 1, -30)
@@ -294,14 +279,12 @@ function TutorialManager:StartResumableTutorial(tutorialName, steps)
         self:SaveProgress(tutorialName, #steps)
     end)
     
-    -- Resume from saved progress
     spotlight:Start()
     for i = 1, savedStep do
         spotlight:Next()
     end
 end
 
--- Usage
 TutorialManager:StartResumableTutorial("MainQuest", {
     { UI = gui.QuestButton, Text = "Open quests" },
     { Part = workspace.QuestGiver, Text = "Talk to the quest giver" },
@@ -319,16 +302,13 @@ Adjust spotlight position dynamically based on screen size or orientation.
 local spotlight = SpotlightUI.new()
 local camera = workspace.CurrentCamera
 
--- Detect screen orientation changes
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
     local viewportSize = camera.ViewportSize
     local isPortrait = viewportSize.Y > viewportSize.X
     
     if isPortrait then
-        -- Adjust hint positioning for mobile portrait mode
         spotlight._hint.Size = UDim2.fromOffset(250, 80)
     else
-        -- Desktop/landscape mode
         spotlight._hint.Size = UDim2.fromOffset(300, 60)
     end
 end)
@@ -351,20 +331,17 @@ Layer multiple spotlights for complex scenarios (use carefully to avoid confusio
 local primarySpotlight = SpotlightUI.new()
 local secondarySpotlight = SpotlightUI.new()
 
--- Primary spotlight for main objective
 primarySpotlight
     :FocusUI(gui.ObjectiveButton, 20, "Main objective: Click here")
     :SetShape("Circle")
     :EnablePulse(12)
     :Show()
 
--- Secondary spotlight for optional hint
 secondarySpotlight
     :FocusUI(gui.HintButton, 10, "Optional: Click for a hint")
     :SetShape("Square")
     :Show()
 
--- Clean up secondary when primary is completed
 primarySpotlight.sequenceCompleted:Connect(function()
     secondarySpotlight:Destroy()
 end)
@@ -382,15 +359,6 @@ Tips for maintaining performance with complex tutorials:
 ### Reuse Spotlight Instances
 
 ```lua
--- Bad: Creating new instances repeatedly
-for i = 1, 10 do
-    local spotlight = SpotlightUI.new()
-    spotlight:FocusUI(buttons[i], 10, "Click " .. i):Show()
-    task.wait(2)
-    spotlight:Destroy()
-end
-
--- Good: Reuse one instance
 local spotlight = SpotlightUI.new()
 for i = 1, 10 do
     spotlight:FocusUI(buttons[i], 10, "Click " .. i):Show()
@@ -402,15 +370,6 @@ spotlight:Destroy()
 ### Limit Simultaneous Tracking
 
 ```lua
--- Bad: Tracking many objects at once
-local spotlights = {}
-for _, npc in workspace.NPCs:GetChildren() do
-    local s = SpotlightUI.new()
-    s:FollowPart(npc):Show()
-    table.insert(spotlights, s)
-end
-
--- Good: Track one at a time or use static world positions
 local spotlight = SpotlightUI.new()
 for _, npc in workspace.NPCs:GetChildren() do
     spotlight:FollowPart(npc, "Talk to " .. npc.Name):Show()
@@ -425,7 +384,7 @@ local spotlight = SpotlightUI.new()
 
 spotlight.sequenceCompleted:Connect(function()
     task.wait(1)
-    spotlight:Destroy()  -- Free up resources
+    spotlight:Destroy()
 end)
 
 spotlight:SetSteps({...}):Start()
@@ -442,7 +401,6 @@ local function SafeStartTutorial(gui, steps)
     local success, err = pcall(function()
         local spotlight = SpotlightUI.new()
         
-        -- Validate steps before starting
         for i, step in steps do
             if step.UI and not step.UI.Parent then
                 warn("Step", i, "references a deleted UI element")
@@ -463,7 +421,6 @@ local function SafeStartTutorial(gui, steps)
     end
 end
 
--- Usage
 SafeStartTutorial(gui, {
     { UI = gui.Button1, Text = "Click here" },
     { Part = workspace.Door, Text = "Go to door" }
@@ -482,7 +439,6 @@ local QuestSystem = {}
 function QuestSystem:StartQuest(questId)
     local questData = self:GetQuestData(questId)
     
-    -- Create tutorial for first-time quest
     if questData.hasSpotlight and not player:GetAttribute("Quest_" .. questId) then
         local spotlight = SpotlightUI.new()
         
@@ -515,7 +471,6 @@ function AchievementSpotlight:ShowNewAchievement(achievementName)
         :EnablePulse(15)
         :Show()
     
-    -- Auto-hide after 4 seconds
     task.delay(4, function()
         spotlight:Hide()
         task.wait(0.5)

@@ -118,7 +118,6 @@ Adjust padding to fit different UI layouts.
 ```lua
 local spotlight = SpotlightUI.new()
 
--- Tight fit for small buttons
 spotlight
     :SetShape("Square")
     :FocusUI(gui.CloseButton, 5, "Close this window")
@@ -126,7 +125,6 @@ spotlight
 
 task.wait(3)
 
--- Generous padding for larger panels
 spotlight
     :FocusUI(gui.QuestPanel, 25, "Track your active quests")
     :Show()
@@ -147,7 +145,6 @@ spotlight
     :EnablePulse(12)
     :Show()
 
--- Hide when mail is opened
 gui.MailButton.Activated:Connect(function()
     spotlight:Hide()
 end)
@@ -190,7 +187,6 @@ spotlight:SetSteps({
     }
 })
 
--- Manual advancement on button clicks
 gui.WelcomeScreen.ContinueButton.Activated:Connect(function()
     spotlight:Next()
 end)
@@ -216,7 +212,6 @@ local function ShowTooltip(element, text)
     return tooltip
 end
 
--- Show tooltips on hover
 gui.SkillButton.MouseEnter:Connect(function()
     local tip = ShowTooltip(gui.SkillButton, "Use special abilities")
     
@@ -241,7 +236,6 @@ spotlight
     :FocusUI(gui.SettingsDropdown, 15, "Click to see options")
     :Show()
 
--- When dropdown opens
 gui.SettingsDropdown.Activated:Connect(function()
     task.wait(0.5)
     spotlight
@@ -298,7 +292,6 @@ Show hints only when relevant actions are available.
 ```lua
 local spotlight = SpotlightUI.new()
 
--- Show crafting hint when player has materials
 player:GetAttributeChangedSignal("HasCraftingMaterials"):Connect(function()
     if player:GetAttribute("HasCraftingMaterials") then
         spotlight

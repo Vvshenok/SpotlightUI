@@ -32,7 +32,7 @@ local spotlight = SpotlightUI.new()
 spotlight
     :SetShape("Circle")
     :FocusUI(gui.ShopButton, 15, "Special sale happening now!")
-    :EnablePulse(12)  -- Pulses by 12 pixels
+    :EnablePulse(12)
     :Show()
 ```
 
@@ -54,7 +54,6 @@ spotlight
     :EnablePulse(15)
     :Show()
 
--- Remove after 5 seconds
 task.delay(5, function()
     spotlight:Hide()
 end)
@@ -76,7 +75,6 @@ spotlight
     :FollowPart(questGiver, "Talk to this NPC for quests")
     :Show()
 
--- Hide when player approaches
 local character = player.Character
 if character then
     local hrp = character:FindFirstChild("HumanoidRootPart")
@@ -144,7 +142,6 @@ spotlight:SetSteps({
     }
 })
 
--- Auto-advance every 4 seconds
 spotlight.stepCompleted:Connect(function()
     task.wait(4)
     spotlight:Next()
@@ -168,15 +165,11 @@ spotlight
     :EnablePulse(15)
     :Show()
 
--- Wait for click
 gui.StartButton.Activated:Wait()
 
--- Move to next spotlight
 spotlight
     :DisablePulse()
     :FocusUI(gui.SettingsButton, 15, "Configure your settings")
-    
--- Continue the tutorial...
 ```
 
 ---
@@ -196,7 +189,6 @@ spotlight
     :EnablePulse(10)
     :Show()
 
--- Stop tracking after 10 seconds
 task.delay(10, function()
     spotlight:Hide()
 end)
@@ -214,7 +206,7 @@ local spotlight = SpotlightUI.new()
 spotlight
     :SetShape("Circle")
     :FocusUI(gui.MinimapFrame, 10, "Use the minimap to navigate")
-    :Show()  -- No pulse for subtle guidance
+    :Show()
 ```
 
 ---
@@ -233,7 +225,6 @@ local function ShowAchievementSpotlight(achievementName)
         :EnablePulse(20)
         :Show()
     
-    -- Auto-hide after 3 seconds
     task.delay(3, function()
         spotlight:Hide()
         task.wait(0.5)
@@ -241,7 +232,6 @@ local function ShowAchievementSpotlight(achievementName)
     end)
 end
 
--- Usage
 player:GetAttributeChangedSignal("Achievements"):Connect(function()
     ShowAchievementSpotlight("First Victory")
 end)
