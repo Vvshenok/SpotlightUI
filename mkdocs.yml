@@ -1,0 +1,18 @@
+site_name: SpotlightUI
+site_description: Guided Focus Module for Roblox
+site_url: https://vvshenok.github.io/SpotlightUI/
+
+repo_name: Vvshenok/SpotlightUI
+repo_url: https://github.com/Vvshenok/SpotlightUI
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference: api.md
