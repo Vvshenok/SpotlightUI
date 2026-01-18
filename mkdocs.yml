@@ -116,7 +116,3 @@ nav:
       - Circle Spotlights: examples/circle.md
       - Square Spotlights: examples/square.md
       - Triangle Spotlights: examples/triangle.md
-  
-  - Community:
-      - Contributing: community/contributing.md
-      - Changelog: community/changelog.md
