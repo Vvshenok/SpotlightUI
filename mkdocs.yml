@@ -92,12 +92,12 @@ extra:
       link: https://github.com/Vvshenok/SpotlightUI
       name: SpotlightUI on GitHub
     - icon: fontawesome/brands/discord
-      link: https://discord.gg/your-server
+      link: https://discord.gg/jjrZqAaJMj
       name: Join our Discord
   
   analytics:
     provider: google
-    property: G-XXXXXXXXXX  # Replace with your Google Analytics ID
+    property: G-XXXXXXXXXX  ## reminder that I needa put da code here
   
   version:
     provider: mike
@@ -116,3 +116,4 @@ nav:
       - Circle Spotlights: examples/circle.md
       - Square Spotlights: examples/square.md
       - Triangle Spotlights: examples/triangle.md
+  - Roadmap: roadmap.md

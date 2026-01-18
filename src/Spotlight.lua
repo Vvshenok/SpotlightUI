@@ -1,10 +1,11 @@
 --!strict
 --[[
+	SpotlightUI – Guided Focus Module
+	
 	Created by: @Vvshenok
 	Repository: https://github.com/Vvshenok/SpotlightUI
+	Documentation: https://vvshenok.github.io/SpotlightUI/
 	License: MIT
-
-	SpotlightUI – Guided Focus Module
 
 	A lightweight spotlight library for drawing player attention to
 	UI elements or world objects. Designed for tutorials, onboarding,
@@ -16,24 +17,29 @@
 		• Optional pulse animation
 		• Step-based system for tutorials
 		• Simple, chainable API
+		• Automatic cleanup with Janitor
 
-	Example Usage:
+	Basic Usage:
 		local SpotlightUI = require(path.to.SpotlightUI)
 
+		-- Single spotlight
 		SpotlightUI.new()
-			:FocusUI(button, 20, "Click here")
+			:FocusUI(button, 20, "Click here to start!")
+			:SetShape("Circle")
 			:EnablePulse(10)
 			:Show()
 
-		-- Or step-based:
+	Step-based Tutorial:
+		local spotlight = SpotlightUI.new()
 		spotlight:SetSteps({
-			{ UI = gui.Button1, Text = "Click here", Shape = "Circle", Pulse = 10 },
-			{ Part = workspace.Door, Text = "Go here", Shape = "Triangle" }
+			{ UI = gui.Button1, Text = "First, click this", Shape = "Circle", Pulse = 10 },
+			{ Part = workspace.Door, Text = "Now walk to the door", Shape = "Triangle" },
+			{ UI = gui.Settings, Text = "Finally, open settings", Shape = "Square" }
 		})
 		spotlight:Start()
-		
-		--// If anyone wants to fix the TypeError with Janitor feel free to and let me know 😅
 
+	API Reference:
+		See full documentation at https://vvshenok.github.io/SpotlightUI/api/reference/
 --]]
 
 
@@ -190,7 +196,7 @@ local UIBuilder = {
 
 		return hint
 	end,
-	CreateTriangle = function(parent: Instance): Frame
+	CreateTriangle = function(parent: Instance): (Frame, UIStroke)
 		local container = Instance.new("Frame")
 		container.BackgroundTransparency = 1
 		container.BorderSizePixel = 0
@@ -244,8 +250,8 @@ function Spotlight.new(): Types.Spotlight
 	local stepCompletedSignal = Signal.new()
 	local sequenceCompletedSignal = Signal.new()
 
-	janitor:Add(stepCompletedSignal, "DisconnectAll")
-	janitor:Add(sequenceCompletedSignal, "DisconnectAll")
+	--janitor:Add(stepCompletedSignal, "DisconnectAll")
+	--janitor:Add(sequenceCompletedSignal, "DisconnectAll")
 
 	local self: Types.SpotlightImpl = setmetatable({
 		_gui = (nil :: any) :: ScreenGui,
@@ -515,7 +521,7 @@ function Spotlight:SetShape(shape: string)
 	return self
 end
 
-function Spotlight:EnablePulse(amount: number)
+function Spotlight:EnablePulse(amount: number): Types.SpotlightImpl
 	if self._pulseEnabled then return self end
 	self._pulseEnabled = true
 
@@ -663,6 +669,8 @@ function Spotlight:Skip()
 end
 
 function Spotlight:Destroy()
+	self.stepCompleted:DisconnectAll()
+	self.sequenceCompleted:DisconnectAll()
 	self.janitor:Destroy()
 end
 

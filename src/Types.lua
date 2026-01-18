@@ -23,7 +23,15 @@ export type SpotlightStep = {
 	Pulse: number?,
 }
 
-export type Janitor = typeof(require(script.Parent.Packages.Janitor).new())
+export type Janitor = {
+	CurrentlyCleaning: boolean,
+	Add: (self: Janitor, Object: any, MethodName: (string | boolean)?, Index: any?) -> any,
+	Remove: (self: Janitor, Index: any) -> Janitor,
+	Get: (self: Janitor, Index: any) -> any?,
+	Cleanup: (self: Janitor) -> (),
+	Destroy: (self: Janitor) -> (),
+	LinkToInstance: (self: Janitor, Object: Instance, AllowMultiple: boolean?) -> any,
+}
 
 export type Spotlight = {
 	janitor: Janitor,
@@ -51,7 +59,7 @@ export type SpotlightImpl = {
 	_circleMask: Frame,
 	_circleStroke: UIStroke,
 	_circleCorner: UICorner,
-	_triangle: ImageLabel,
+	_triangle: Frame,
 	_triangleStroke: UIStroke,
 	_hint: TextLabel,
 	_hintCorner: UICorner,

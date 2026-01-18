@@ -319,6 +319,21 @@ for FunctionName, Function in next, Janitor.__index do
 	Janitor.__index[NewFunctionName] = Function
 end
 
-export type Janitor = typeof(Janitor)
+export type Janitor = {
+	CurrentlyCleaning: boolean,
+	Add: (self: Janitor, Object: any, MethodName: string | boolean?, Index: any?) -> any,
+	Give: (self: Janitor, Object: any, MethodName: string | boolean?, Index: any?) -> any,
+	AddPromise: (self: Janitor, PromiseObject: any) -> any,
+	GivePromise: (self: Janitor, PromiseObject: any) -> any,
+	AddObject: (self: Janitor, Object: any) -> (any, any),
+	GiveObject: (self: Janitor, Object: any) -> (any, any),
+	Remove: (self: Janitor, Index: any) -> Janitor,
+	Get: (self: Janitor, Index: any) -> any?,
+	Cleanup: (self: Janitor) -> (),
+	Clean: (self: Janitor) -> (),
+	Destroy: (self: Janitor) -> (),
+	LinkToInstance: (self: Janitor, Object: Instance, AllowMultiple: boolean?) -> any,
+	LinkToInstances: (self: Janitor, ...Instance) -> Janitor,
+}
 
-return Janitor :: Janitor
+return Janitor
