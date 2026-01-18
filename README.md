@@ -17,6 +17,7 @@ Get the SpotlightUI ModuleScript from
 
 **Other Links:**
 
-<a href=YOUR_DOCUMENTATION_LINK target=_blank>Documentation / Examples</a><br>
+<a href=https://vvshenok.github.io/SpotlightUI/
+ target=_blank>Documentation / Examples</a><br>
 <a href=YOUR_DEVFORUM_POST_LINK target=_blank>DevForum</a><br>
 <a href=https://www.roblox.com/library/YOUR_ASSET_ID_HERE target=_blank>Roblox</a>

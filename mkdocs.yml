@@ -1,18 +1,122 @@
 site_name: SpotlightUI
-site_description: Guided Focus Module for Roblox
+site_description: Lightweight guided focus module for Roblox tutorials and onboarding
+site_author: Vvshenok & Interactive Studios
 site_url: https://vvshenok.github.io/SpotlightUI/
 
 repo_name: Vvshenok/SpotlightUI
 repo_url: https://github.com/Vvshenok/SpotlightUI
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; 2024 Vvshenok & Interactive Studios
 
 theme:
   name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep orange
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep orange
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  
+  font:
+    text: Roboto
+    code: Roboto Mono
+  
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/spotlight-beam
+  
   features:
     - navigation.instant
+    - navigation.tracking
     - navigation.sections
+    - navigation.expand
     - navigation.top
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  
+  language: en
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+plugins:
+  - search:
+      lang: en
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - minify:
+      minify_html: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Vvshenok/SpotlightUI
+      name: SpotlightUI on GitHub
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/your-server
+      name: Join our Discord
+  
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX  # Replace with your Google Analytics ID
+  
+  version:
+    provider: mike
 
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - API Reference: api.md
+  
+  - Getting Started:
+      - Installation & Setup: guides/getting-started.md
+      - Advanced Usage: guides/advanced-usage.md
+  
+  - API Reference:
+      - Complete API: api/reference.md
+  
+  - Examples:
+      - Circle Spotlights: examples/circle.md
+      - Square Spotlights: examples/square.md
+      - Triangle Spotlights: examples/triangle.md
+  
+  - Community:
+      - Contributing: community/contributing.md
+      - Changelog: community/changelog.md
