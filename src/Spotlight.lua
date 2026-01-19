@@ -246,12 +246,13 @@ Spotlight.__index = Spotlight
 function Spotlight.new(): Types.Spotlight
 	local camera = workspace.CurrentCamera :: Camera
 	local janitor = Janitor.new()
+	local guiInsetService = game:GetService("GuiService")
 
 	local stepCompletedSignal = Signal.new()
 	local sequenceCompletedSignal = Signal.new()
 
-	--janitor:Add(stepCompletedSignal, "DisconnectAll")
-	--janitor:Add(sequenceCompletedSignal, "DisconnectAll")
+	janitor:Add(stepCompletedSignal, "DisconnectAll")
+	janitor:Add(sequenceCompletedSignal, "DisconnectAll")
 
 	local self: Types.SpotlightImpl = setmetatable({
 		_gui = (nil :: any) :: ScreenGui,
@@ -273,6 +274,8 @@ function Spotlight.new(): Types.Spotlight
 		_tweenDriver = (nil :: any) :: Vector3Value,
 		_pulseDriver = (nil :: any) :: NumberValue,
 		_camera = camera,
+		_guiInsetService = guiInsetService,
+		_pulseThread = (nil :: any) :: thread,
 		janitor = janitor,
 		stepCompleted = stepCompletedSignal,
 		sequenceCompleted = sequenceCompletedSignal,
@@ -496,11 +499,11 @@ function Spotlight:Hide()
 	self:DisablePulse()
 	self:_fadeOverlay(false)
 
-	task.delay(Constants.FADE_DURATION, function()
+	self.janitor:Add(task.delay(Constants.FADE_DURATION, function()
 		if self._gui then
 			self._gui.Enabled = false
 		end
-	end)
+	end), "cancel", "HideDelay")
 	return self
 end
 
@@ -525,7 +528,7 @@ function Spotlight:EnablePulse(amount: number): Types.SpotlightImpl
 	if self._pulseEnabled then return self end
 	self._pulseEnabled = true
 
-	local thread = task.spawn(function()
+	self._pulseThread = task.spawn(function()
 		while self._active and self._pulseEnabled do
 			AnimationUtil.CreatePulseTween(self._pulseDriver, {
 				Value = amount
@@ -544,7 +547,10 @@ function Spotlight:EnablePulse(amount: number): Types.SpotlightImpl
 
 	self.janitor:Add(function()
 		self._pulseEnabled = false
-		task.cancel(thread)
+		if self._pulseThread then
+			task.cancel(self._pulseThread)
+			self._pulseThread = nil
+		end
 	end, true, "PulseThread")
 	return self
 end
@@ -552,6 +558,10 @@ end
 function Spotlight:DisablePulse()
 	self._pulseEnabled = false
 	self.janitor:Remove("PulseThread")
+	if self._pulseThread then
+		task.cancel(self._pulseThread)
+		self._pulseThread = nil
+	end
 	self._pulseDriver.Value = 0
 	return self
 end
@@ -563,8 +573,7 @@ function Spotlight:FocusUI(ui: GuiObject, padding: number?, text: string?)
 	local guiInsetOffset = Vector2.zero
 
 	if uiScreenGui and not uiScreenGui.IgnoreGuiInset then
-		local guiInsetService = game:GetService("GuiService")
-		local topbarInset = guiInsetService:GetGuiInset()
+		local topbarInset = self._guiInsetService:GetGuiInset()
 		guiInsetOffset = Vector2.new(0, topbarInset.Y)
 	end
 
@@ -669,8 +678,6 @@ function Spotlight:Skip()
 end
 
 function Spotlight:Destroy()
-	self.stepCompleted:DisconnectAll()
-	self.sequenceCompleted:DisconnectAll()
 	self.janitor:Destroy()
 end
 
