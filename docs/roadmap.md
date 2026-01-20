@@ -15,9 +15,11 @@ SpotlightUI is actively maintained and continuously improved. This page outlines
 ## Version 1.1 (Next Release)
 
 ### Bug Fixes
-- Improved mobile touch detection
-- Enhanced performance for multiple spotlights
-- Better handling of off-screen world positions
+- Fix memory leaks and improve cleanup reliability  
+- Remove Triangle Shapes Completely  
+- Correct circle shape width inconsistencies  
+- Improve mobile touch detection  
+- Enhanced performance for multiple spotlights  
 
 ### New Features
 - **Custom Color Themes** - Customize overlay, hint, and pulse colors
