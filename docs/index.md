@@ -14,7 +14,7 @@ Building effective tutorials shouldn't require hundreds of lines of code. Spotli
 
 ### Key Features
 
-- **Multiple Spotlight Shapes** - Circle, Square, and Triangle spotlights
+- **Multiple Spotlight Shapes** - Circle and Square spotlights with smooth transitions
 - **World & UI Support** - Highlight both 3D world objects and GUI elements
 - **Real-time Tracking** - Spotlights automatically follow moving objects
 - **Pulse Animations** - Draw attention with customizable pulsing effects
@@ -38,7 +38,7 @@ SpotlightUI.new()
 local spotlight = SpotlightUI.new()
 spotlight:SetSteps({
     { UI = gui.Button1, Text = "First, click this button", Shape = "Circle", Pulse = 10 },
-    { Part = workspace.Door, Text = "Now go to the door", Shape = "Triangle" },
+    { Part = workspace.Door, Text = "Now go to the door", Shape = "Circle" },
     { UI = gui.Settings, Text = "Finally, open settings", Shape = "Square", Padding = 15 }
 })
 spotlight:Start()

@@ -123,7 +123,7 @@ end
 spotlight:SetSteps({
     { UI = gui.PlayButton, Text = "Click the play button", Shape = "Circle", Pulse = 10 },
     { UI = gui.InventoryButton, Text = "Open your inventory", Shape = "Square" },
-    { Part = workspace.TargetLocation, Text = "Walk to this location", Shape = "Triangle" }
+    { Part = workspace.TargetLocation, Text = "Walk to this location", Shape = "Circle" }
 })
 
 spotlight.stepCompleted:Connect(function(stepIndex)
@@ -489,5 +489,5 @@ end
 4. **Provide skip options** - Let players who know the game skip tutorials
 5. **Test on all platforms** - Ensure spotlights work on mobile, tablet, and desktop
 6. **Save progress** - For long tutorials, save progress to DataStores
-7. **Use appropriate shapes** - Circles for focus points, squares for UI, triangles for direction
+7. **Use appropriate shapes** - Circles for focus points, squares for UI elements
 8. **Keep text concise** - Hint text should be brief and actionable

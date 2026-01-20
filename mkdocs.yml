@@ -115,5 +115,5 @@ nav:
   - Examples:
       - Circle Spotlights: examples/circle.md
       - Square Spotlights: examples/square.md
-      - Triangle Spotlights: examples/triangle.md
+      
   - Roadmap: roadmap.md

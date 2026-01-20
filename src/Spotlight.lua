@@ -12,7 +12,7 @@
 	feature highlights, and guided experiences.
 
 	Features:
-		• Circle, square, and triangle spotlights
+		• Circle and square spotlights
 		• Follows UI elements or world objects in real time
 		• Optional pulse animation
 		• Step-based system for tutorials
@@ -22,7 +22,6 @@
 	Basic Usage:
 		local SpotlightUI = require(path.to.SpotlightUI)
 
-		-- Single spotlight
 		SpotlightUI.new()
 			:FocusUI(button, 20, "Click here to start!")
 			:SetShape("Circle")
@@ -33,7 +32,7 @@
 		local spotlight = SpotlightUI.new()
 		spotlight:SetSteps({
 			{ UI = gui.Button1, Text = "First, click this", Shape = "Circle", Pulse = 10 },
-			{ Part = workspace.Door, Text = "Now walk to the door", Shape = "Triangle" },
+			{ Part = workspace.Door, Text = "Now walk to the door", Shape = "Circle" },
 			{ UI = gui.Settings, Text = "Finally, open settings", Shape = "Square" }
 		})
 		spotlight:Start()
@@ -42,10 +41,10 @@
 		See full documentation at https://vvshenok.github.io/SpotlightUI/api/reference/
 --]]
 
-
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local GuiService = game:GetService("GuiService")
 
 local Types = require(script.Types)
 local Signal = require(script.Packages.GoodSignal)
@@ -83,6 +82,8 @@ local Constants = {
 	OVERLAY_ZINDEX = 5,
 	HINT_ZINDEX = 11,
 }
+
+local CACHED_GUI_INSET = GuiService:GetGuiInset()
 
 type SpotlightClass = {
 	__index: SpotlightClass,
@@ -196,46 +197,6 @@ local UIBuilder = {
 
 		return hint
 	end,
-	CreateTriangle = function(parent: Instance): (Frame, UIStroke)
-		local container = Instance.new("Frame")
-		container.BackgroundTransparency = 1
-		container.BorderSizePixel = 0
-		container.Visible = false
-		container.ZIndex = Constants.OVERLAY_ZINDEX
-		container.Parent = parent
-
-		local triangle = Instance.new("Frame")
-		triangle.Size = UDim2.fromScale(1.414, 1.414)
-		triangle.Position = UDim2.fromScale(0.5, 0.7)
-		triangle.AnchorPoint = Vector2.new(0.5, 0.5)
-		triangle.BackgroundTransparency = 1
-		triangle.Rotation = 45
-		triangle.BorderSizePixel = 0
-		triangle.Parent = container
-
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(0, 8)
-		corner.Parent = triangle
-
-		local stroke = Instance.new("UIStroke")
-		stroke.Color = Constants.OVERLAY_COLOR
-		stroke.Thickness = 10000
-		stroke.Transparency = 1
-		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		stroke.Parent = triangle
-
-		local clipper = Instance.new("Frame")
-		clipper.Size = UDim2.fromScale(1, 0.5)
-		clipper.Position = UDim2.fromScale(0, 0)
-		clipper.BackgroundTransparency = 1
-		clipper.BorderSizePixel = 0
-		clipper.ClipsDescendants = true
-		clipper.Parent = container
-
-		triangle.Parent = clipper
-
-		return container, stroke
-	end,
 }
 
 local player = Players.LocalPlayer :: Player
@@ -246,7 +207,6 @@ Spotlight.__index = Spotlight
 function Spotlight.new(): Types.Spotlight
 	local camera = workspace.CurrentCamera :: Camera
 	local janitor = Janitor.new()
-	local guiInsetService = game:GetService("GuiService")
 
 	local stepCompletedSignal = Signal.new()
 	local sequenceCompletedSignal = Signal.new()
@@ -257,11 +217,9 @@ function Spotlight.new(): Types.Spotlight
 	local self: Types.SpotlightImpl = setmetatable({
 		_gui = (nil :: any) :: ScreenGui,
 		_container = (nil :: any) :: Frame,
-		_circleMask = (nil :: any) :: Frame,
-		_circleStroke = (nil :: any) :: UIStroke,
-		_circleCorner = (nil :: any) :: UICorner,
-		_triangle = (nil :: any) :: ImageLabel,
-		_triangleStroke = (nil :: any) :: UIStroke,
+		_mask = (nil :: any) :: Frame,
+		_stroke = (nil :: any) :: UIStroke,
+		_corner = (nil :: any) :: UICorner,
 		_hint = (nil :: any) :: TextLabel,
 		_hintCorner = (nil :: any) :: UICorner,
 		_spotlightPos = Vector2.zero,
@@ -273,9 +231,8 @@ function Spotlight.new(): Types.Spotlight
 		_stepIndex = 0,
 		_tweenDriver = (nil :: any) :: Vector3Value,
 		_pulseDriver = (nil :: any) :: NumberValue,
+		_heightDriver = (nil :: any) :: NumberValue,
 		_camera = camera,
-		_guiInsetService = guiInsetService,
-		_pulseThread = (nil :: any) :: thread,
 		janitor = janitor,
 		stepCompleted = stepCompletedSignal,
 		sequenceCompleted = sequenceCompletedSignal,
@@ -305,63 +262,25 @@ function Spotlight:_buildUI()
 	})
 	self._container = container
 
-	local circleMask = UIBuilder.CreateFrame(container, {
-		Name = "CircleMask",
+	local mask = UIBuilder.CreateFrame(container, {
+		Name = "Mask",
 		BackgroundTransparency = 1,
 		ZIndex = Constants.OVERLAY_ZINDEX,
 	})
-	self._circleMask = circleMask
+	self._mask = mask
 
-	local circleCorner = Instance.new("UICorner")
-	circleCorner.CornerRadius = Constants.CIRCLE_CORNER_RADIUS
-	circleCorner.Parent = circleMask
-	self._circleCorner = circleCorner
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = Constants.CIRCLE_CORNER_RADIUS
+	corner.Parent = mask
+	self._corner = corner
 
-	local circleStroke = Instance.new("UIStroke")
-	circleStroke.Color = Constants.OVERLAY_COLOR
-	circleStroke.Thickness = 10000
-	circleStroke.Transparency = 1
-	circleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	circleStroke.Parent = circleMask
-	self._circleStroke = circleStroke
-
-	local triangleContainer = Instance.new("Frame")
-	triangleContainer.BackgroundTransparency = 1
-	triangleContainer.BorderSizePixel = 0
-	triangleContainer.Visible = false
-	triangleContainer.ZIndex = Constants.OVERLAY_ZINDEX
-	triangleContainer.Parent = container
-	self._triangle = triangleContainer
-
-	local rotatedSquare = Instance.new("Frame")
-	rotatedSquare.Size = UDim2.fromScale(1.414, 1.414)
-	rotatedSquare.Position = UDim2.fromScale(0.5, 0.65)
-	rotatedSquare.AnchorPoint = Vector2.new(0.5, 0.5)
-	rotatedSquare.BackgroundTransparency = 1
-	rotatedSquare.Rotation = 45
-	rotatedSquare.BorderSizePixel = 0
-
-	local squareCorner = Instance.new("UICorner")
-	squareCorner.CornerRadius = UDim.new(0, 8)
-	squareCorner.Parent = rotatedSquare
-
-	local triangleStroke = Instance.new("UIStroke")
-	triangleStroke.Color = Constants.OVERLAY_COLOR
-	triangleStroke.Thickness = 10000
-	triangleStroke.Transparency = 1
-	triangleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	triangleStroke.Parent = rotatedSquare
-	self._triangleStroke = triangleStroke
-
-	local clipper = Instance.new("Frame")
-	clipper.Size = UDim2.fromScale(1, 0.55)
-	clipper.Position = UDim2.fromScale(0, 0)
-	clipper.BackgroundTransparency = 1
-	clipper.BorderSizePixel = 0
-	clipper.ClipsDescendants = true
-	clipper.Parent = triangleContainer
-
-	rotatedSquare.Parent = clipper
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Constants.OVERLAY_COLOR
+	stroke.Thickness = 10000
+	stroke.Transparency = 1
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = mask
+	self._stroke = stroke
 
 	local hint = UIBuilder.CreateHintLabel(container)
 	self._hint = hint
@@ -376,10 +295,17 @@ function Spotlight:_setupDrivers()
 		self._spotlightSize.X
 	)
 	self._tweenDriver = tweenDriver
+	self.janitor:Add(tweenDriver, "Destroy")
+
+	local heightDriver = Instance.new("NumberValue")
+	heightDriver.Value = self._spotlightSize.Y
+	self._heightDriver = heightDriver
+	self.janitor:Add(heightDriver, "Destroy")
 
 	local pulseDriver = Instance.new("NumberValue")
 	pulseDriver.Value = 0
 	self._pulseDriver = pulseDriver
+	self.janitor:Add(pulseDriver, "Destroy")
 end
 
 function Spotlight:_startUpdateLoop()
@@ -391,12 +317,13 @@ function Spotlight:_startUpdateLoop()
 			self._tweenDriver.Value.Y
 		)
 
-		local baseSize: number = self._tweenDriver.Value.Z
+		local baseWidth: number = self._tweenDriver.Value.Z
+		local baseHeight: number = self._heightDriver.Value
 		local pulseOffset: number = self._pulseDriver.Value
 
 		self._spotlightSize = Vector2.new(
-			baseSize + pulseOffset,
-			baseSize + pulseOffset
+			baseWidth + pulseOffset,
+			baseHeight + pulseOffset
 		)
 
 		self:_updateSpotlightLayout()
@@ -407,19 +334,11 @@ end
 function Spotlight:_updateSpotlightLayout()
 	local x = self._spotlightPos.X
 	local y = self._spotlightPos.Y
-	local size = self._spotlightSize.X
+	local width = self._spotlightSize.X
+	local height = self._spotlightSize.Y
 
-	if self._currentShape == "Triangle" then
-		self._circleMask.Visible = false
-		self._triangle.Visible = true
-		self._triangle.Position = UDim2.fromOffset(x, y)
-		self._triangle.Size = UDim2.fromOffset(size, size)
-	else
-		self._circleMask.Visible = true
-		self._triangle.Visible = false
-		self._circleMask.Position = UDim2.fromOffset(x, y)
-		self._circleMask.Size = UDim2.fromOffset(size, size)
-	end
+	self._mask.Position = UDim2.fromOffset(x, y)
+	self._mask.Size = UDim2.fromOffset(width, height)
 end
 
 function Spotlight:_updateHintPosition()
@@ -439,18 +358,18 @@ end
 function Spotlight:_fadeOverlay(show: boolean)
 	local transparency = show and (1 - Constants.OVERLAY_ALPHA) or 1
 
-	AnimationUtil.CreateFadeTween(self._circleStroke, {
+	local strokeTween = AnimationUtil.CreateFadeTween(self._stroke, {
 		Transparency = transparency
-	}):Play()
+	})
+	self.janitor:Add(strokeTween, "Destroy")
+	strokeTween:Play()
 
-	AnimationUtil.CreateFadeTween(self._triangleStroke, {
-		Transparency = transparency
-	}):Play()
-
-	AnimationUtil.CreateFadeTween(self._hint, {
+	local hintTween = AnimationUtil.CreateFadeTween(self._hint, {
 		BackgroundTransparency = show and 0.15 or 1,
 		TextTransparency = show and 0 or 1
-	}):Play()
+	})
+	self.janitor:Add(hintTween, "Destroy")
+	hintTween:Play()
 end
 
 function Spotlight:_disconnectFollow()
@@ -500,10 +419,11 @@ function Spotlight:Hide()
 	self:_fadeOverlay(false)
 
 	self.janitor:Add(task.delay(Constants.FADE_DURATION, function()
-		if self._gui then
+		if self._gui and self._gui.Parent then
 			self._gui.Enabled = false
 		end
-	end), "cancel", "HideDelay")
+	end), true, "HideDelay")
+	
 	return self
 end
 
@@ -511,15 +431,13 @@ function Spotlight:SetShape(shape: string)
 	shape = shape or "Circle"
 	self._currentShape = shape
 
-	if shape == "Circle" then
-		AnimationUtil.CreateShapeTween(self._circleCorner, {
-			CornerRadius = Constants.CIRCLE_CORNER_RADIUS
-		}):Play()
-	elseif shape == "Square" then
-		AnimationUtil.CreateShapeTween(self._circleCorner, {
-			CornerRadius = Constants.SQUARE_CORNER_RADIUS
-		}):Play()
-	end
+	local targetRadius = if shape == "Circle" then Constants.CIRCLE_CORNER_RADIUS else Constants.SQUARE_CORNER_RADIUS
+	
+	local shapeTween = AnimationUtil.CreateShapeTween(self._corner, {
+		CornerRadius = targetRadius
+	})
+	self.janitor:Add(shapeTween, "Destroy")
+	shapeTween:Play()
 
 	return self
 end
@@ -528,40 +446,34 @@ function Spotlight:EnablePulse(amount: number): Types.SpotlightImpl
 	if self._pulseEnabled then return self end
 	self._pulseEnabled = true
 
-	self._pulseThread = task.spawn(function()
+	local thread = task.spawn(function()
 		while self._active and self._pulseEnabled do
-			AnimationUtil.CreatePulseTween(self._pulseDriver, {
+			local expandTween = AnimationUtil.CreatePulseTween(self._pulseDriver, {
 				Value = amount
-			}):Play()
+			})
+			self.janitor:Add(expandTween, "Destroy")
+			expandTween:Play()
 
 			task.wait(Constants.PULSE_DURATION)
 			if not self._pulseEnabled then break end
 
-			AnimationUtil.CreatePulseTween(self._pulseDriver, {
+			local contractTween = AnimationUtil.CreatePulseTween(self._pulseDriver, {
 				Value = 0
-			}):Play()
+			})
+			self.janitor:Add(contractTween, "Destroy")
+			contractTween:Play()
 
 			task.wait(Constants.PULSE_DURATION)
 		end
 	end)
 
-	self.janitor:Add(function()
-		self._pulseEnabled = false
-		if self._pulseThread then
-			task.cancel(self._pulseThread)
-			self._pulseThread = nil
-		end
-	end, true, "PulseThread")
+	self.janitor:Add(thread, task.cancel, "PulseThread")
 	return self
 end
 
 function Spotlight:DisablePulse()
 	self._pulseEnabled = false
 	self.janitor:Remove("PulseThread")
-	if self._pulseThread then
-		task.cancel(self._pulseThread)
-		self._pulseThread = nil
-	end
 	self._pulseDriver.Value = 0
 	return self
 end
@@ -573,21 +485,47 @@ function Spotlight:FocusUI(ui: GuiObject, padding: number?, text: string?)
 	local guiInsetOffset = Vector2.zero
 
 	if uiScreenGui and not uiScreenGui.IgnoreGuiInset then
-		local topbarInset = self._guiInsetService:GetGuiInset()
-		guiInsetOffset = Vector2.new(0, topbarInset.Y)
+		guiInsetOffset = Vector2.new(0, CACHED_GUI_INSET.Y)
 	end
 
 	local pos = ui.AbsolutePosition + guiInsetOffset
 	local size = ui.AbsoluteSize
 	local pad = padding or 0
 
-	local maxDim = math.max(size.X, size.Y) + (pad * 2)
-	local centerX = pos.X + (size.X / 2) - (maxDim / 2)
-	local centerY = pos.Y + (size.Y / 2) - (maxDim / 2)
+	if self._currentShape == "Square" then
+		local width = size.X + (pad * 2)
+		local height = size.Y + (pad * 2)
+		local topLeftX = pos.X - pad
+		local topLeftY = pos.Y - pad
 
-	AnimationUtil.CreateMoveTween(self._tweenDriver, {
-		Value = Vector3.new(centerX, centerY, maxDim)
-	}):Play()
+		local positionTween = AnimationUtil.CreateMoveTween(self._tweenDriver, {
+			Value = Vector3.new(topLeftX, topLeftY, width)
+		})
+		self.janitor:Add(positionTween, "Destroy")
+		positionTween:Play()
+
+		local heightTween = AnimationUtil.CreateMoveTween(self._heightDriver, {
+			Value = height
+		})
+		self.janitor:Add(heightTween, "Destroy")
+		heightTween:Play()
+	else
+		local maxDim = math.max(size.X, size.Y) + (pad * 2)
+		local centerX = pos.X + (size.X / 2) - (maxDim / 2)
+		local centerY = pos.Y + (size.Y / 2) - (maxDim / 2)
+
+		local positionTween = AnimationUtil.CreateMoveTween(self._tweenDriver, {
+			Value = Vector3.new(centerX, centerY, maxDim)
+		})
+		self.janitor:Add(positionTween, "Destroy")
+		positionTween:Play()
+
+		local heightTween = AnimationUtil.CreateMoveTween(self._heightDriver, {
+			Value = maxDim
+		})
+		self.janitor:Add(heightTween, "Destroy")
+		heightTween:Play()
+	end
 
 	self._hint.Text = text or ""
 	return self
@@ -605,11 +543,8 @@ function Spotlight:FocusWorld(position: Vector3, radius: number, text: string?)
 	local pixelRadius = self:_worldRadiusToPixels(position, radius)
 	local size = pixelRadius * 2
 
-	self._tweenDriver.Value = Vector3.new(
-		v.X - pixelRadius,
-		v.Y - pixelRadius,
-		size
-	)
+	self._tweenDriver.Value = Vector3.new(v.X - pixelRadius, v.Y - pixelRadius, size)
+	self._heightDriver.Value = size
 
 	self._hint.Text = text or ""
 	return self

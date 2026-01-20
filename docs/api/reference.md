@@ -65,7 +65,7 @@ Changes the spotlight shape with a smooth transition.
 
 **Parameters:**
 
-- `shape` (string) - The shape type: `"Circle"`, `"Square"`, or `"Triangle"`
+- `shape` (string) - The shape type: `"Circle"` or `"Square"`
 
 **Returns:** `self` (chainable)
 
@@ -73,7 +73,6 @@ Changes the spotlight shape with a smooth transition.
 ```lua
 spotlight:SetShape("Circle")  -- Circular spotlight
 spotlight:SetShape("Square")  -- Rounded square spotlight
-spotlight:SetShape("Triangle") -- Triangular spotlight pointing down
 ```
 
 **Default:** `"Circle"`
@@ -204,7 +203,7 @@ Configures a sequence of tutorial steps.
 ```lua
 spotlight:SetSteps({
     { UI = gui.Button1, Text = "Click here", Shape = "Circle", Pulse = 10 },
-    { Part = workspace.Door, Text = "Go to the door", Shape = "Triangle" },
+    { Part = workspace.Door, Text = "Go to the door", Shape = "Square" },
     { World = Vector3.new(0, 5, 0), Radius = 10, Text = "Final destination" }
 })
 ```
@@ -314,7 +313,7 @@ These properties are part of the internal state and generally shouldn't be acces
 |----------|------|-------------|
 | `_active` | boolean | Whether the spotlight is currently visible |
 | `_pulseEnabled` | boolean | Whether pulse animation is running |
-| `_currentShape` | string | Current shape: "Circle", "Square", or "Triangle" |
+| `_currentShape` | string | Current shape: "Circle" or "Square" |
 | `_steps` | table | Array of step configurations |
 | `_stepIndex` | number | Current step index (0-based internally) |
 | `_spotlightPos` | Vector2 | Current position on screen |
@@ -335,7 +334,7 @@ Each step in a tutorial sequence is a table with the following fields:
 | `World` | Vector3 | * | World position to spotlight |
 | `Radius` | number | No | Radius for `World` spotlights (default: 80) |
 | `Text` | string | No | Hint text to display |
-| `Shape` | string | No | "Circle", "Square", or "Triangle" |
+| `Shape` | string | No | "Circle" or "Square" |
 | `Padding` | number | No | Padding for `UI` spotlights (default: 0) |
 | `Pulse` | number | No | Pulse amount in pixels (disabled if omitted) |
 
@@ -369,7 +368,7 @@ Each step in a tutorial sequence is a table with the following fields:
     World = Vector3.new(100, 5, 100),
     Radius = 10,
     Text = "Go to this location",
-    Shape = "Triangle",
+    Shape = "Circle",
     Pulse = 12
 }
 ```

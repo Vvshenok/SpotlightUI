@@ -70,7 +70,7 @@ To spotlight a part or model in the 3D world:
 ```lua
 Spotlight
     :FocusWorld(ImportantDoor.Position, 5, "Go to this door")
-    :SetShape("Triangle")
+    :SetShape("Square")
     :Show()
 ```
 
@@ -111,7 +111,7 @@ Spotlight:SetSteps({
     {
         Part = workspace.Checkpoint1,
         Text = "Now go to this checkpoint",
-        Shape = "Triangle"
+        Shape = "Circle"
     },
     {
         UI = MyGui.InventoryButton,
@@ -133,7 +133,7 @@ Each step is a table with the following optional properties:
 | `World` | Vector3 | A specific position in the world |
 | `Radius` | number | Radius for world spotlights (default: 80) |
 | `Text` | string | Hint text to display |
-| `Shape` | string | "Circle", "Square", or "Triangle" |
+| `Shape` | string | "Circle" or "Square" |
 | `Padding` | number | Extra space around UI elements |
 | `Pulse` | number | Pulse animation amount (pixels) |
 
@@ -217,7 +217,7 @@ gui.WelcomeScreen.CloseButton.Activated:Connect(function()
     Spotlight:SetSteps({
         { Part = workspace.SpawnLocation, Text = "This is your spawn", Shape = "Circle" },
         { UI = gui.HealthBar, Text = "This is your health", Shape = "Square", Padding = 10 },
-        { Part = workspace.QuestGiver, Text = "Talk to NPCs for quests", Shape = "Triangle" }
+        { Part = workspace.QuestGiver, Text = "Talk to NPCs for quests", Shape = "Circle" }
     })
     Spotlight:Start()
 end)
@@ -242,7 +242,7 @@ The `Destroy()` method uses Janitor internally to ensure all connections and twe
 
 1. **One Spotlight per Tutorial** - Create a new Spotlight instance for each distinct tutorial flow
 2. **Clear Instructions** - Keep hint text concise and actionable
-3. **Appropriate Shapes** - Use circles for points of interest, squares for UI elements, triangles for directions
+3. **Appropriate Shapes** - Use circles for points of interest, squares for UI elements
 4. **Pulse Sparingly** - Only use pulse on the most important steps to avoid overwhelming players
 5. **Test on Different Screen Sizes** - Ensure spotlights work well on mobile and desktop
 
@@ -279,7 +279,7 @@ Tutorial:SetSteps({
     {
         Part = workspace.QuestBoard,
         Text = "Check the quest board for missions",
-        Shape = "Triangle"
+        Shape = "Circle"
     },
     {
         UI = gui.InventoryButton,

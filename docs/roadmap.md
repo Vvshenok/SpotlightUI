@@ -7,17 +7,17 @@ SpotlightUI is actively maintained and continuously improved. This page outlines
 ## Current Version: v1.0
 
 ### Known Issues
-- Triangle shape positioning needs refinement
 - Mobile device compatibility improvements needed
+- Performance optimization for multiple simultaneous spotlights
 
 ---
 
 ## Version 1.1 (Next Release)
 
 ### Bug Fixes
-- Fix Triangle shape rendering and positioning
-- Improve mobile touch detection
+- Improved mobile touch detection
 - Enhanced performance for multiple spotlights
+- Better handling of off-screen world positions
 
 ### New Features
 - **Custom Color Themes** - Customize overlay, hint, and pulse colors
@@ -33,7 +33,7 @@ SpotlightUI is actively maintained and continuously improved. This page outlines
 ### Features
 - **Multi-Target Highlighting** - Spotlight multiple UI elements or objects simultaneously
 - **Animation Presets** - Built-in entrance/exit animations (fade, bounce, zoom, slide)
-- **Custom Shapes** - Define your own polygon shapes beyond circle/square/triangle
+- **Custom Shapes** - Define your own polygon shapes beyond circle and square
 - **Replay Controls** - Add skip, previous, and replay buttons to tutorials
 - **Mobile Gestures** - Swipe and tap gesture support for mobile users
 
@@ -63,9 +63,9 @@ Have a feature request? Open an issue on [GitHub](https://github.com/Vvshenok/Sp
 - Particle effects around spotlights (sparkles, glow, confetti)
 - Tooltip system for quick hints
 - Integration with popular UI/State libraries (Fusion, Roact, Roblox-TS, React-Lua)
-- More shape options (hexagon, star, arrow)
+- More shape options (hexagon, star, arrow, rounded rectangle)
 - Custom easing functions for animations
 
 ---
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 20, 2026
