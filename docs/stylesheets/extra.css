@@ -1,27 +1,27 @@
 :root {
-    /* primarry brand color - deep orange */
+    /* Primary brand color - deep orange */
     --md-primary-fg-color: #cf7b43;
     --md-primary-fg-color--light: #e89560;
     --md-primary-fg-color--dark: #b3662c;
     
-    /* accent color - amber */
+    /* Accent color - amber */
     --md-accent-fg-color: #ffa726;
     --md-accent-fg-color--transparent: rgba(255, 167, 38, 0.1);
 }
 
-/* dark mode adjustments */
+/* Dark mode adjustments */
 [data-md-color-scheme="slate"] {
     --md-primary-fg-color: #cf7b43;
     --md-code-bg-color: #1e1e1e;
 }
 
-/* custom styling for code blocks */
+/* Custom styling for code blocks */
 .highlight pre {
     border-radius: 8px;
     border-left: 4px solid var(--md-primary-fg-color);
 }
 
-/* improve admonition styling */
+/* Improve admonition styling */
 .admonition {
     border-left: 4px solid var(--md-primary-fg-color);
     border-radius: 6px;
@@ -43,7 +43,7 @@
     border-left-color: #00acc1;
 }
 
-/* better table styling */
+/* Better table styling */
 table {
     border-radius: 8px;
     overflow: hidden;
@@ -63,7 +63,7 @@ table tbody tr:hover {
     background-color: var(--md-accent-fg-color--transparent);
 }
 
-/* code inline styling */
+/* Code inline styling */
 code {
     background-color: var(--md-code-bg-color);
     padding: 2px 6px;
@@ -71,28 +71,28 @@ code {
     font-size: 0.9em;
 }
 
-/* navigation tabs enhancement */
+/* Navigation tabs enhancement */
 .md-tabs {
     background-color: var(--md-primary-fg-color);
 }
 
-/* header logo spacing */
+/* Header logo spacing */
 .md-header__title {
     margin-left: 0.5rem;
 }
 
-/* improve link hover effects */
+/* Improve link hover effects */
 a:hover {
     text-decoration: underline;
     opacity: 0.8;
 }
 
-/* better spacing for content */
+/* Better spacing for content */
 .md-content {
     padding: 0 1rem;
 }
 
-/* custom styling for method signatures */
+/* Custom styling for method signatures */
 h4 code {
     background-color: var(--md-primary-fg-color);
     color: white;
@@ -101,47 +101,47 @@ h4 code {
     font-size: 1em;
 }
 
-/* highlight important parameters in tables */
+/* Highlight important parameters in tables */
 table td:first-child {
     font-weight: 600;
     color: var(--md-primary-fg-color);
 }
 
-/* better code block title styling */
+/* Better code block title styling */
 .md-typeset .highlighttable {
     margin: 1em 0;
     border-radius: 8px;
     overflow: hidden;
 }
 
-/* enhance search results */
+/* Enhance search results */
 .md-search-result__meta {
     color: var(--md-primary-fg-color);
 }
 
-/* custom footer styling */
+/* Custom footer styling */
 .md-footer {
     background-color: var(--md-primary-fg-color);
 }
 
-/* better mobile responsiveness */
+/* Better mobile responsiveness */
 @media screen and (max-width: 76.1875em) {
     .md-nav--primary .md-nav__title {
         background-color: var(--md-primary-fg-color);
     }
 }
 
-/* smooooth transitions (i lied, its spikes)*/
+/* Smooth transitions */
 * {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* version badge styling */
+/* Version badge styling */
 .md-version__current {
     background-color: var(--md-primary-fg-color);
 }
 
-/* better spacing for lists in content */
+/* Better spacing for lists in content */
 .md-typeset ul,
 .md-typeset ol {
     margin: 1em 0;
@@ -151,14 +151,14 @@ table td:first-child {
     margin: 0.5em 0;
 }
 
-/* enhance blockquotes */
+/* Enhance blockquotes */
 blockquote {
     border-left: 4px solid var(--md-primary-fg-color);
     padding-left: 1rem;
     color: var(--md-default-fg-color--light);
 }
 
-/* custom hero section for homepage */
+/* Custom hero section for homepage */
 .hero-section {
     text-align: center;
     padding: 3rem 0;
@@ -173,7 +173,7 @@ blockquote {
     margin-bottom: 1rem;
 }
 
-/* feature grid */
+/* Feature grid */
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -198,7 +198,7 @@ blockquote {
     margin-top: 0;
 }
 
-/* status badges */
+/* Status badges */
 .badge {
     display: inline-block;
     padding: 4px 12px;
