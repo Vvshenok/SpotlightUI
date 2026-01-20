@@ -3,6 +3,8 @@ site_description: Lightweight guided focus module for Roblox tutorials and onboa
 site_author: Vvshenok & Interactive Studios
 site_url: https://vvshenok.github.io/SpotlightUI/
 
+use_directory_urls: true
+
 repo_name: Vvshenok/SpotlightUI
 repo_url: https://github.com/Vvshenok/SpotlightUI
 edit_uri: edit/main/docs/
@@ -55,7 +57,7 @@ theme:
   language: en
 
 extra_css:
-  - stylesheets/extra.css
+  - stylesheets/extra.v1.css
 
 markdown_extensions:
   - admonition
