@@ -2,8 +2,8 @@
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Vvshenok/SpotlightUI/docs.yml?branch=main&label=docs&style=plastic)
 ![Version](https://img.shields.io/badge/version-v1-blue?style=plastic)
-![GitHub](https://img.shields.io/github/license/Vvshenok/rblx-simplepath?style=plastic) ![Roblox Luau](https://img.shields.io/badge/Roblox-Luau-red?style=plastic)
 ![GitHub](https://img.shields.io/github/license/Vvshenok/SpotlightUI?style=plastic) ![Roblox Luau](https://img.shields.io/badge/Roblox-Luau-red?style=plastic)
+![Roblox Luau](https://img.shields.io/badge/Roblox-Luau-red?style=plastic)
 
 SpotlightUI is an open-source guided focus module that gives you the ability to quickly create tutorials and guidance systems for Roblox with just a few lines of code. It highlights UI elements and world objects using spotlight effects. To get started with SpotlightUI, visit Getting Started.
 
