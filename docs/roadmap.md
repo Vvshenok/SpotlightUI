@@ -4,9 +4,9 @@ SpotlightUI is actively maintained and continuously improved. This page outlines
 
 ---
 
-## Current Version: v2.0
+## Current Version: v1.0
 
-### What's New in v2
+### What's New in v1
 
 - **Four spotlight shapes** — Circle, Square, Rounded, and Rectangle with smooth animated transitions
 - **Spring-based movement** — Critically-damped spring integrator replaces the old tween driver for smooth, physics-feel following
