@@ -40,7 +40,7 @@ spotlight
 
 ## Following a Character
 
-Create a spotlight that follows the player's character.
+Create a spotlight that follows the player's character. A pulsing world Highlight is attached to the part automatically.
 
 ```lua
 local character = player.Character or player.CharacterAdded:Wait()
@@ -109,7 +109,7 @@ spotlight
 
 ## Multi-Step Tutorial with Circles
 
-Create a complete tutorial using only circle spotlights.
+Create a complete tutorial using circle spotlights.
 
 ```lua
 local spotlight = SpotlightUI.new()
@@ -218,13 +218,13 @@ Briefly highlight when a player earns an achievement.
 ```lua
 local function ShowAchievementSpotlight(achievementName)
     local spotlight = SpotlightUI.new()
-    
+
     spotlight
         :SetShape("Circle")
         :FocusUI(gui.AchievementPopup, 30, "Achievement unlocked!")
         :EnablePulse(20)
         :Show()
-    
+
     task.delay(3, function()
         spotlight:Hide()
         task.wait(0.5)

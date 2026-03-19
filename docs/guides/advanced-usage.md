@@ -50,11 +50,11 @@ function TutorialManager:StartPhase(phase)
     if self.spotlights[self.currentPhase] then
         self.spotlights[self.currentPhase]:Destroy()
     end
-    
+
     self.currentPhase = phase
     local spotlight = SpotlightUI.new()
     self.spotlights[phase] = spotlight
-    
+
     if phase == 1 then
         spotlight:SetSteps({
             { UI = gui.MovementKeys, Text = "Use WASD to move" },
@@ -71,11 +71,11 @@ function TutorialManager:StartPhase(phase)
             { UI = gui.QuestLog, Text = "Track your active quests here" }
         })
     end
-    
+
     spotlight.sequenceCompleted:Connect(function()
         player:SetAttribute("TutorialPhase" .. phase, true)
     end)
-    
+
     spotlight:Start()
 end
 
@@ -99,36 +99,32 @@ Ensure players complete actions before advancing through tutorial steps.
 
 ```lua
 local spotlight = SpotlightUI.new()
-local currentStepIndex = 0
 local stepValidations = {}
 
 stepValidations[1] = function()
-    return gui.PlayButton.Activated:Wait()
+    gui.PlayButton.Activated:Wait()
 end
 
 stepValidations[2] = function()
-    return gui.InventoryButton.Activated:Wait()
+    gui.InventoryButton.Activated:Wait()
 end
 
 stepValidations[3] = function()
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-    
-    repeat
-        task.wait(0.5)
+
+    repeat task.wait(0.5)
     until (hrp.Position - workspace.TargetLocation.Position).Magnitude < 10
 end
 
 spotlight:SetSteps({
     { UI = gui.PlayButton, Text = "Click the play button", Shape = "Circle", Pulse = 10 },
-    { UI = gui.InventoryButton, Text = "Open your inventory", Shape = "Square" },
+    { UI = gui.InventoryButton, Text = "Open your inventory", Shape = "Rectangle" },
     { Part = workspace.TargetLocation, Text = "Walk to this location", Shape = "Circle" }
 })
 
 spotlight.stepCompleted:Connect(function(stepIndex)
-    currentStepIndex = stepIndex
-    
     if stepValidations[stepIndex] then
         task.spawn(function()
             stepValidations[stepIndex]()
@@ -154,37 +150,30 @@ local TutorialSystem = {}
 TutorialSystem.hasSeenTutorial = {}
 
 function TutorialSystem:ShouldShowTutorial(tutorialName)
-    if player:GetAttribute("TutorialsDisabled") then
-        return false
-    end
-    
-    if self.hasSeenTutorial[tutorialName] then
-        return false
-    end
-    
+    if player:GetAttribute("TutorialsDisabled") then return false end
+    if self.hasSeenTutorial[tutorialName] then return false end
+
     local level = player:GetAttribute("Level") or 1
-    if tutorialName == "Basic" and level > 5 then
-        return false
-    end
-    
+    if tutorialName == "Basic" and level > 5 then return false end
+
     return true
 end
 
 function TutorialSystem:ShowShopTutorial()
     if not self:ShouldShowTutorial("Shop") then return end
-    
+
     local spotlight = SpotlightUI.new()
     spotlight:SetSteps({
         { UI = gui.ShopButton, Text = "Click to open the shop" },
         { UI = gui.ShopFrame.BuyButton, Text = "Purchase items here" },
         { UI = gui.ShopFrame.SellButton, Text = "Sell unwanted items" }
     })
-    
+
     spotlight.sequenceCompleted:Connect(function()
         self.hasSeenTutorial["Shop"] = true
         player:SetAttribute("SeenShopTutorial", true)
     end)
-    
+
     spotlight:Start()
 end
 
@@ -195,30 +184,30 @@ end)
 
 ---
 
-## Spotlight Hints with Custom Actions
+## Adding a Skip Button to the Hint
 
-Add buttons or interactive elements to spotlight hints.
+You can parent extra UI into the hint label for custom controls like a skip button.
 
 ```lua
 local spotlight = SpotlightUI.new()
 
-local hint = spotlight._hint
+-- Wait for the GUI to be built before accessing the hint
+task.defer(function()
+    local hint = (spotlight :: any).hint
 
-local skipButton = Instance.new("TextButton")
-skipButton.Size = UDim2.new(0, 60, 0, 25)
-skipButton.Position = UDim2.new(1, -70, 1, -30)
-skipButton.Text = "Skip"
-skipButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-skipButton.TextColor3 = Color3.new(1, 1, 1)
-skipButton.BorderSizePixel = 0
-skipButton.Parent = hint
+    local skipButton = Instance.new("TextButton")
+    skipButton.Size = UDim2.new(0, 60, 0, 25)
+    skipButton.Position = UDim2.new(1, -70, 1, -30)
+    skipButton.Text = "Skip"
+    skipButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    skipButton.TextColor3 = Color3.new(1, 1, 1)
+    skipButton.BorderSizePixel = 0
+    skipButton.Parent = hint
+    Instance.new("UICorner", skipButton).CornerRadius = UDim.new(0, 4)
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 4)
-corner.Parent = skipButton
-
-skipButton.Activated:Connect(function()
-    spotlight:Skip()
+    skipButton.Activated:Connect(function()
+        spotlight:Skip()
+    end)
 end)
 
 spotlight:SetSteps({
@@ -248,7 +237,6 @@ function TutorialManager:SaveProgress(tutorialName, stepIndex)
             timestamp = os.time()
         })
     end)
-    
     if not success then
         warn("Failed to save tutorial progress:", err)
     end
@@ -258,7 +246,6 @@ function TutorialManager:LoadProgress(tutorialName)
     local success, data = pcall(function()
         return TutorialData:GetAsync(player.UserId .. "_" .. tutorialName)
     end)
-    
     if success and data then
         return data.stepIndex or 0
     end
@@ -268,19 +255,20 @@ end
 function TutorialManager:StartResumableTutorial(tutorialName, steps)
     local spotlight = SpotlightUI.new()
     local savedStep = self:LoadProgress(tutorialName)
-    
+
     spotlight:SetSteps(steps)
-    
+
     spotlight.stepCompleted:Connect(function(stepIndex)
         self:SaveProgress(tutorialName, stepIndex)
     end)
-    
+
     spotlight.sequenceCompleted:Connect(function()
         self:SaveProgress(tutorialName, #steps)
     end)
-    
+
     spotlight:Start()
-    for i = 1, savedStep do
+
+    for _ = 1, savedStep do
         spotlight:Next()
     end
 end
@@ -290,35 +278,6 @@ TutorialManager:StartResumableTutorial("MainQuest", {
     { Part = workspace.QuestGiver, Text = "Talk to the quest giver" },
     { UI = gui.ObjectiveTracker, Text = "Track your objectives" }
 })
-```
-
----
-
-## Dynamic Spotlight Positioning
-
-Adjust spotlight position dynamically based on screen size or orientation.
-
-```lua
-local spotlight = SpotlightUI.new()
-local camera = workspace.CurrentCamera
-
-camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-    local viewportSize = camera.ViewportSize
-    local isPortrait = viewportSize.Y > viewportSize.X
-    
-    if isPortrait then
-        spotlight._hint.Size = UDim2.fromOffset(250, 80)
-    else
-        spotlight._hint.Size = UDim2.fromOffset(300, 60)
-    end
-end)
-
-spotlight:SetSteps({
-    { UI = gui.MobileButton, Text = "Tap here on mobile" },
-    { Part = workspace.Checkpoint, Text = "Navigate to this point" }
-})
-
-spotlight:Start()
 ```
 
 ---
@@ -339,7 +298,7 @@ primarySpotlight
 
 secondarySpotlight
     :FocusUI(gui.HintButton, 10, "Optional: Click for a hint")
-    :SetShape("Square")
+    :SetShape("Rectangle")
     :Show()
 
 primarySpotlight.sequenceCompleted:Connect(function()
@@ -347,34 +306,24 @@ primarySpotlight.sequenceCompleted:Connect(function()
 end)
 ```
 
-!!! Warning
+!!! warning
     Multiple simultaneous spotlights can overwhelm players. Use this pattern sparingly and ensure the primary spotlight is visually distinct.
 
 ---
 
 ## Performance Optimization
 
-Tips for maintaining performance with complex tutorials:
-
 ### Reuse Spotlight Instances
 
 ```lua
 local spotlight = SpotlightUI.new()
+
 for i = 1, 10 do
     spotlight:FocusUI(buttons[i], 10, "Click " .. i):Show()
     task.wait(2)
 end
+
 spotlight:Destroy()
-```
-
-### Limit Simultaneous Tracking
-
-```lua
-local spotlight = SpotlightUI.new()
-for _, npc in workspace.NPCs:GetChildren() do
-    spotlight:FollowPart(npc, "Talk to " .. npc.Name):Show()
-    task.wait(5)
-end
 ```
 
 ### Destroy When Done
@@ -397,10 +346,10 @@ spotlight:SetSteps({...}):Start()
 Handle edge cases gracefully in production code:
 
 ```lua
-local function SafeStartTutorial(gui, steps)
+local function SafeStartTutorial(steps)
     local success, err = pcall(function()
         local spotlight = SpotlightUI.new()
-        
+
         for i, step in steps do
             if step.UI and not step.UI.Parent then
                 warn("Step", i, "references a deleted UI element")
@@ -411,17 +360,17 @@ local function SafeStartTutorial(gui, steps)
                 return
             end
         end
-        
+
         spotlight:SetSteps(steps)
         spotlight:Start()
     end)
-    
+
     if not success then
         warn("Tutorial failed to start:", err)
     end
 end
 
-SafeStartTutorial(gui, {
+SafeStartTutorial({
     { UI = gui.Button1, Text = "Click here" },
     { Part = workspace.Door, Text = "Go to door" }
 })
@@ -438,20 +387,20 @@ local QuestSystem = {}
 
 function QuestSystem:StartQuest(questId)
     local questData = self:GetQuestData(questId)
-    
+
     if questData.hasSpotlight and not player:GetAttribute("Quest_" .. questId) then
         local spotlight = SpotlightUI.new()
-        
+
         spotlight:SetSteps({
             { Part = questData.npc, Text = "Talk to " .. questData.npcName },
             { World = questData.objective, Radius = 15, Text = questData.objectiveText },
             { Part = questData.npc, Text = "Return to " .. questData.npcName }
         })
-        
+
         spotlight.sequenceCompleted:Connect(function()
             player:SetAttribute("Quest_" .. questId, true)
         end)
-        
+
         spotlight:Start()
     end
 end
@@ -464,13 +413,13 @@ local AchievementSpotlight = {}
 
 function AchievementSpotlight:ShowNewAchievement(achievementName)
     local spotlight = SpotlightUI.new()
-    
+
     spotlight
         :FocusUI(gui.AchievementPopup, 25, "You unlocked: " .. achievementName)
-        :SetShape("Square")
+        :SetShape("Rectangle")
         :EnablePulse(15)
         :Show()
-    
+
     task.delay(4, function()
         spotlight:Hide()
         task.wait(0.5)
@@ -489,5 +438,5 @@ end
 4. **Provide skip options** - Let players who know the game skip tutorials
 5. **Test on all platforms** - Ensure spotlights work on mobile, tablet, and desktop
 6. **Save progress** - For long tutorials, save progress to DataStores
-7. **Use appropriate shapes** - Circles for focus points, squares for UI elements
+7. **Use appropriate shapes** - Circles for focus points, rectangles for wide UI elements
 8. **Keep text concise** - Hint text should be brief and actionable

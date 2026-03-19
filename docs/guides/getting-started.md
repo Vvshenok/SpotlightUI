@@ -6,7 +6,7 @@ This tutorial shows you how to set up SpotlightUI and teaches you the basic impl
 
 Get the module from the [GitHub repository](https://github.com/Vvshenok/SpotlightUI/releases) and download the latest release.
 
-!!! Note
+!!! note
     For the purposes of this tutorial, we assume the module is placed in `ReplicatedStorage.SpotlightUI`.
 
 After you insert the module into your place, add a new LocalScript to `StarterPlayer.StarterPlayerScripts` or `StarterGui` and paste the following code:
@@ -30,7 +30,7 @@ local ImportantDoor = workspace:WaitForChild("TutorialDoor")
 local Spotlight = SpotlightUI.new()
 ```
 
-!!! Note
+!!! note
     `SpotlightUI.new()` is a constructor that creates a new Spotlight instance. You can reuse the same Spotlight object throughout your tutorial by calling different methods on it.
 
 ---
@@ -57,10 +57,21 @@ You can chain additional methods to customize the appearance:
 
 ```lua
 Spotlight
-    :SetShape("Circle")        
-    :EnablePulse(10)           
+    :SetShape("Circle")
+    :EnablePulse(10)
     :FocusUI(Button, 20, "Click this button to start!")
     :Show()
+```
+
+### Choosing a Shape
+
+SpotlightUI supports four shapes:
+
+```lua
+spotlight:SetShape("Circle")     -- Circular spotlight, great for characters and NPCs
+spotlight:SetShape("Square")     -- Tight square with subtle rounding
+spotlight:SetShape("Rounded")    -- Noticeably rounded square
+spotlight:SetShape("Rectangle")  -- Wraps element width × height tightly, ideal for frames
 ```
 
 ### Highlighting World Objects
@@ -70,7 +81,7 @@ To spotlight a part or model in the 3D world:
 ```lua
 Spotlight
     :FocusWorld(ImportantDoor.Position, 5, "Go to this door")
-    :SetShape("Square")
+    :SetShape("Circle")
     :Show()
 ```
 
@@ -89,7 +100,7 @@ Spotlight
     :Show()
 ```
 
-The spotlight will automatically update its position to track the object in real-time.
+The spotlight will automatically update its position to track the object in real-time. A pulsing world Highlight is also attached to the part automatically.
 
 ---
 
@@ -116,7 +127,7 @@ Spotlight:SetSteps({
     {
         UI = MyGui.InventoryButton,
         Text = "Finally, open your inventory",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 20
     }
 })
@@ -133,11 +144,11 @@ Each step is a table with the following optional properties:
 | `World` | Vector3 | A specific position in the world |
 | `Radius` | number | Radius for world spotlights (default: 80) |
 | `Text` | string | Hint text to display |
-| `Shape` | string | "Circle" or "Square" |
+| `Shape` | string | `"Circle"`, `"Square"`, `"Rounded"`, or `"Rectangle"` |
 | `Padding` | number | Extra space around UI elements |
 | `Pulse` | number | Pulse animation amount (pixels) |
 
-!!! Warning
+!!! warning
     Each step should have either `UI`, `Part`, or `World` defined, but not multiple.
 
 ### Advancing Through Steps
@@ -145,9 +156,9 @@ Each step is a table with the following optional properties:
 The tutorial automatically starts with the first step when you call `:Start()`. To manually advance:
 
 ```lua
-Spotlight:Next()
+Spotlight:Next()  -- advance to the next step
 
-Spotlight:Skip()
+Spotlight:Skip()  -- immediately hide and end
 ```
 
 ### Listening to Step Events
@@ -173,26 +184,26 @@ local Spotlight = SpotlightUI.new()
 
 Spotlight:SetSteps({
     { UI = gui.PlayButton, Text = "Click to play", Shape = "Circle", Pulse = 10 },
-    { UI = gui.ShopButton, Text = "Check out the shop", Shape = "Square" },
+    { UI = gui.ShopButton, Text = "Check out the shop", Shape = "Rectangle" },
     { UI = gui.SettingsButton, Text = "Customize your settings", Shape = "Circle" }
 })
 
+local stepIndex = 0
+
+Spotlight.stepCompleted:Connect(function(index)
+    stepIndex = index
+end)
+
 gui.PlayButton.Activated:Connect(function()
-    if Spotlight._stepIndex == 1 then
-        Spotlight:Next()
-    end
+    if stepIndex == 1 then Spotlight:Next() end
 end)
 
 gui.ShopButton.Activated:Connect(function()
-    if Spotlight._stepIndex == 2 then
-        Spotlight:Next()
-    end
+    if stepIndex == 2 then Spotlight:Next() end
 end)
 
 gui.SettingsButton.Activated:Connect(function()
-    if Spotlight._stepIndex == 3 then
-        Spotlight:Next()
-    end
+    if stepIndex == 3 then Spotlight:Next() end
 end)
 
 Spotlight:Start()
@@ -213,10 +224,10 @@ Spotlight
 
 gui.WelcomeScreen.CloseButton.Activated:Connect(function()
     gui.WelcomeScreen.Visible = false
-    
+
     Spotlight:SetSteps({
         { Part = workspace.SpawnLocation, Text = "This is your spawn", Shape = "Circle" },
-        { UI = gui.HealthBar, Text = "This is your health", Shape = "Square", Padding = 10 },
+        { UI = gui.HealthBar, Text = "This is your health", Shape = "Rectangle", Padding = 10 },
         { Part = workspace.QuestGiver, Text = "Talk to NPCs for quests", Shape = "Circle" }
     })
     Spotlight:Start()
@@ -234,7 +245,7 @@ Spotlight:Hide()
 Spotlight:Destroy()
 ```
 
-The `Destroy()` method uses Janitor internally to ensure all connections and tweens are properly cleaned up.
+The `Destroy()` method uses Janitor internally to ensure all connections are properly cleaned up.
 
 ---
 
@@ -242,9 +253,9 @@ The `Destroy()` method uses Janitor internally to ensure all connections and twe
 
 1. **One Spotlight per Tutorial** - Create a new Spotlight instance for each distinct tutorial flow
 2. **Clear Instructions** - Keep hint text concise and actionable
-3. **Appropriate Shapes** - Use circles for points of interest, squares for UI elements
+3. **Appropriate Shapes** - Use circles for points of interest, rectangles for wide UI elements
 4. **Pulse Sparingly** - Only use pulse on the most important steps to avoid overwhelming players
-5. **Test on Different Screen Sizes** - Ensure spotlights work well on mobile and desktop
+5. **Test on Different Screen Sizes** - SpotlightUI scales automatically but always test on mobile and desktop
 
 ---
 
@@ -273,7 +284,7 @@ Tutorial:SetSteps({
     {
         UI = gui.Minimap,
         Text = "Use the minimap to navigate",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 10
     },
     {

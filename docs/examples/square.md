@@ -1,6 +1,6 @@
-# Square Spotlight Examples
+# Square & Rectangle Spotlight Examples
 
-The square spotlight is perfect for highlighting UI panels, buttons, and rectangular interface elements.
+Square and Rectangle spotlights are perfect for highlighting UI panels, buttons, and rectangular interface elements.
 
 ---
 
@@ -22,16 +22,16 @@ spotlight
 
 ---
 
-## Square Spotlight for Panels
+## Rectangle Spotlight for Panels
 
-Perfect for highlighting entire UI panels or frames.
+Rectangle wraps the element's exact width and height — ideal for wide frames and banners.
 
 ```lua
 local spotlight = SpotlightUI.new()
 
 spotlight
-    :SetShape("Square")
-    :FocusUI(gui.InventoryPanel, 15, "Manage your items here")
+    :SetShape("Rectangle")
+    :FocusUI(gui.InventoryPanel, 12, "Manage your items here")
     :EnablePulse(8)
     :Show()
 ```
@@ -40,7 +40,7 @@ spotlight
 
 ## Highlighting Multiple UI Elements
 
-Use squares to guide players through a series of UI controls.
+Use spotlights to guide players through a series of UI controls.
 
 ```lua
 local spotlight = SpotlightUI.new()
@@ -49,13 +49,13 @@ spotlight:SetSteps({
     {
         UI = gui.TopBar.CoinsDisplay,
         Text = "This shows your current coins",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 12
     },
     {
         UI = gui.TopBar.GemsDisplay,
         Text = "This shows your premium currency",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 12
     },
     {
@@ -88,13 +88,13 @@ spotlight:SetSteps({
     {
         UI = gui.SettingsPanel.UsernameInput,
         Text = "Enter your username",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 10
     },
     {
         UI = gui.SettingsPanel.GraphicsDropdown,
         Text = "Choose your graphics quality",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 10
     },
     {
@@ -125,9 +125,7 @@ spotlight
 
 task.wait(3)
 
-spotlight
-    :FocusUI(gui.QuestPanel, 25, "Track your active quests")
-    :Show()
+spotlight:FocusUI(gui.QuestPanel, 25, "Track your active quests")
 ```
 
 ---
@@ -154,7 +152,7 @@ end)
 
 ## Step-by-Step UI Tutorial
 
-Complete onboarding flow using square spotlights.
+Complete onboarding flow using square and rectangle spotlights.
 
 ```lua
 local spotlight = SpotlightUI.new()
@@ -176,7 +174,7 @@ spotlight:SetSteps({
     {
         UI = gui.MainMenu.CustomizeButton,
         Text = "Customize your character",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 18
     },
     {
@@ -203,43 +201,26 @@ Create tooltip-style hints for UI elements.
 ```lua
 local function ShowTooltip(element, text)
     local tooltip = SpotlightUI.new()
-    
+
     tooltip
         :SetShape("Square")
         :FocusUI(element, 8, text)
         :Show()
-    
+
     return tooltip
 end
 
+local tip
 gui.SkillButton.MouseEnter:Connect(function()
-    local tip = ShowTooltip(gui.SkillButton, "Use special abilities")
-    
-    gui.SkillButton.MouseLeave:Connect(function()
+    tip = ShowTooltip(gui.SkillButton, "Use special abilities")
+end)
+
+gui.SkillButton.MouseLeave:Connect(function()
+    if tip then
         tip:Hide()
         tip:Destroy()
-    end)
-end)
-```
-
----
-
-## Highlighting Dropdown Menus
-
-Guide users through menu selections.
-
-```lua
-local spotlight = SpotlightUI.new()
-
-spotlight
-    :SetShape("Square")
-    :FocusUI(gui.SettingsDropdown, 15, "Click to see options")
-    :Show()
-
-gui.SettingsDropdown.Activated:Connect(function()
-    task.wait(0.5)
-    spotlight
-        :FocusUI(gui.SettingsDropdown.OptionsList, 10, "Select your preference")
+        tip = nil
+    end
 end)
 ```
 
@@ -247,7 +228,7 @@ end)
 
 ## Square Spotlight for Building UI
 
-Guide players through building/crafting interfaces.
+Guide players through building or crafting interfaces.
 
 ```lua
 local spotlight = SpotlightUI.new()
@@ -256,13 +237,13 @@ spotlight:SetSteps({
     {
         UI = gui.BuildMenu.CategoryTabs,
         Text = "Choose a category",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 12
     },
     {
         UI = gui.BuildMenu.ItemGrid,
         Text = "Select an item to place",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 15
     },
     {
@@ -275,7 +256,7 @@ spotlight:SetSteps({
     {
         UI = gui.BuildMenu.RotateButtons,
         Text = "Rotate before placing",
-        Shape = "Square",
+        Shape = "Rectangle",
         Padding = 10
     }
 })
@@ -285,7 +266,7 @@ spotlight:Start()
 
 ---
 
-## Contextual Square Hints
+## Contextual Hints
 
 Show hints only when relevant actions are available.
 
@@ -307,42 +288,10 @@ end)
 
 ---
 
-## Square Spotlight Animation Sequence
+## Best Practices for Square & Rectangle Spotlights
 
-Create a smooth sequence highlighting multiple UI regions.
-
-```lua
-local spotlight = SpotlightUI.new()
-local uiElements = {
-    {gui.TopBar, "This is the top bar"},
-    {gui.LeftSidebar, "Quick access menu"},
-    {gui.RightPanel, "Stats and information"},
-    {gui.BottomControls, "Game controls"}
-}
-
-local function highlightSequence()
-    for i, data in uiElements do
-        spotlight
-            :SetShape("Square")
-            :FocusUI(data[1], 15, data[2])
-            :Show()
-        
-        task.wait(2.5)
-    end
-    
-    spotlight:Hide()
-end
-
-highlightSequence()
-```
-
----
-
-## Best Practices for Square Spotlights
-
-- **UI-first choice** - Squares are the natural choice for rectangular UI elements
-- **Match UI shapes** - Use squares for buttons, panels, and frames
+- **Rectangle for wide elements** - Use Rectangle for horizontal bars, panels, and banners
+- **Square for buttons** - Use Square for roughly equal-sized interactive elements
+- **Match UI shapes** - Let the element's aspect ratio guide your shape choice
 - **Padding consistency** - Use 10-20 pixel padding for most UI elements
-- **Panel highlighting** - Perfect for entire frames or dialog boxes
-- **Form guidance** - Excellent for multi-field forms and settings screens
 - **Avoid on circles** - Don't use square spotlights on circular UI elements

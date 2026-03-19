@@ -14,9 +14,14 @@ Building effective tutorials shouldn't require hundreds of lines of code. Spotli
 
 ### Key Features
 
-- **Multiple Spotlight Shapes** - Circle and Square spotlights with smooth transitions
+- **Four Spotlight Shapes** - Circle, Square, Rounded, and Rectangle with smooth animated transitions
 - **World & UI Support** - Highlight both 3D world objects and GUI elements
-- **Real-time Tracking** - Spotlights automatically follow moving objects
+- **Live Tracking** - Spotlights automatically follow moving or resizing elements every frame
+- **Spring-Based Movement** - Smooth, physics-feel position and size following with no overshoot
+- **Screen-Ratio-Aware Sizing** - Layouts scale correctly on any screen size or aspect ratio
+- **ScrollFrame Locking** - Ancestor ScrollingFrames are locked during a step so the user can't scroll away
+- **Off-Screen Arrow** - An arrow appears at the viewport edge pointing toward off-screen targets
+- **World Object Highlight** - A pulsing Highlight instance is automatically attached during FollowPart steps
 - **Pulse Animations** - Draw attention with customizable pulsing effects
 - **Step-based System** - Create multi-step tutorials with ease
 - **Chainable API** - Fluent interface for readable, maintainable code
@@ -39,7 +44,7 @@ local spotlight = SpotlightUI.new()
 spotlight:SetSteps({
     { UI = gui.Button1, Text = "First, click this button", Shape = "Circle", Pulse = 10 },
     { Part = workspace.Door, Text = "Now go to the door", Shape = "Circle" },
-    { UI = gui.Settings, Text = "Finally, open settings", Shape = "Square", Padding = 15 }
+    { UI = gui.Settings, Text = "Finally, open settings", Shape = "Rectangle", Padding = 15 }
 })
 spotlight:Start()
 ```

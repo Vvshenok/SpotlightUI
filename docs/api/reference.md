@@ -19,7 +19,7 @@ Creates and returns a new Spotlight instance.
 local spotlight = SpotlightUI.new()
 ```
 
-!!! Warning
+!!! warning
     Each Spotlight instance manages its own UI and state. Create separate instances for different tutorial flows, but reuse the same instance across steps in a single flow.
 
 ---
@@ -45,7 +45,7 @@ spotlight:Show()
 
 #### :Hide()
 
-Hides the spotlight with a fade-out animation and deactivates all tracking.
+Hides the spotlight with a fade-out animation and deactivates all tracking. Stops pulse, unlocks any ScrollingFrames, detaches the world Highlight, and hides the off-screen arrow.
 
 **Returns:** `self` (chainable)
 
@@ -54,7 +54,7 @@ Hides the spotlight with a fade-out animation and deactivates all tracking.
 spotlight:Hide()
 ```
 
-!!! Note
+!!! note
     The spotlight GUI is disabled after the fade animation completes (0.25 seconds). Pulse animations are automatically disabled.
 
 ---
@@ -65,17 +65,22 @@ Changes the spotlight shape with a smooth transition.
 
 **Parameters:**
 
-- `shape` (string) - The shape type: `"Circle"` or `"Square"`
+- `shape` (string) - The shape type: `"Circle"`, `"Square"`, `"Rounded"`, or `"Rectangle"`
 
 **Returns:** `self` (chainable)
 
 **Example:**
 ```lua
-spotlight:SetShape("Circle")  -- Circular spotlight
-spotlight:SetShape("Square")  -- Rounded square spotlight
+spotlight:SetShape("Circle")     -- Circular spotlight
+spotlight:SetShape("Square")     -- Tight square with subtle rounding
+spotlight:SetShape("Rounded")    -- Noticeably rounded square
+spotlight:SetShape("Rectangle")  -- Wraps element width × height tightly
 ```
 
 **Default:** `"Circle"`
+
+!!! note
+    `Rectangle` uses the element's exact width and height plus padding, making it ideal for wide UI elements like frames and banners. The other three shapes use a uniform size based on the largest dimension.
 
 ---
 
@@ -95,7 +100,7 @@ spotlight:EnablePulse(10)  -- Subtle pulse
 spotlight:EnablePulse(25)  -- More dramatic pulse
 ```
 
-!!! Info
+!!! info
     The pulse completes one full cycle (expand and contract) every 2.4 seconds. Pulses continue until disabled or the spotlight is hidden.
 
 ---
@@ -113,25 +118,66 @@ spotlight:DisablePulse()
 
 ---
 
-#### :FocusUI(ui, padding?, text?)
+#### :FocusUI(ui, padding?, text?, offsetX?, offsetY?, offsetYScale?)
 
-Focuses the spotlight on a GUI element.
+Focuses the spotlight on a GUI element and continuously tracks it every frame. The spotlight automatically adjusts if the element moves, resizes, or re-parents — no additional calls needed.
+
+Ancestor ScrollingFrames are locked for the duration of this call so the user cannot scroll away from the highlighted element.
 
 **Parameters:**
 
-- `ui` (GuiObject) - The GUI element to highlight (Frame, TextButton, ImageLabel, etc.)
+- `ui` (GuiObject) - The GUI element to highlight
 - `padding` (number?) - Optional padding around the element in pixels (default: 0)
 - `text` (string?) - Optional hint text to display below the spotlight
+- `offsetX` (number?) - Optional horizontal offset in pixels
+- `offsetY` (number?) - Optional vertical offset in pixels
+- `offsetYScale` (number?) - Optional vertical offset as a fraction of screen height
 
 **Returns:** `self` (chainable)
 
 **Example:**
 ```lua
 spotlight:FocusUI(gui.PlayButton, 20, "Click to start!")
+spotlight:FocusUI(gui.Icon, 10, "Here!", 0, -30)
 ```
 
-!!! Note
-    The spotlight automatically sizes to create a circle/square that encompasses the UI element. The padding expands this area. The method accounts for GuiInset automatically.
+---
+
+#### :FollowUI(ui, padding?, text?)
+
+Alias for `:FocusUI`. Both methods continuously track the element every frame. Kept for readability and back-compatibility.
+
+**Returns:** `self` (chainable)
+
+```lua
+spotlight:FollowUI(gui.MovingFrame, 15, "This moves!")
+```
+
+---
+
+#### :HideHint()
+
+Fades out the hint text label without hiding the spotlight itself.
+
+**Returns:** `self` (chainable)
+
+**Example:**
+```lua
+spotlight:HideHint()
+```
+
+---
+
+#### :ShowHint()
+
+Fades the hint text label back in, if there is text set.
+
+**Returns:** `self` (chainable)
+
+**Example:**
+```lua
+spotlight:ShowHint()
+```
 
 ---
 
@@ -153,14 +199,16 @@ spotlight:FocusWorld(Vector3.new(100, 5, 50), 8, "Go here")
 spotlight:FocusWorld(workspace.Door.Position, 5, "Open this door")
 ```
 
-!!! Warning
-    If the position is behind the camera or off-screen, the spotlight container becomes invisible. It reappears when the position returns to view.
+!!! warning
+    If the position is behind the camera or off-screen, the spotlight container becomes invisible. It reappears when the position returns to view. An off-screen arrow will point toward the target.
 
 ---
 
 #### :FollowPart(instance, text?)
 
-Makes the spotlight continuously track a moving BasePart or Model.
+Makes the spotlight continuously track a BasePart or Model. The spotlight re-projects the part's world position to screen space every frame so it stays locked regardless of camera movement.
+
+A pulsing `Highlight` instance is automatically attached to the part for additional world-space visual feedback, and removed when the step ends.
 
 **Parameters:**
 
@@ -175,8 +223,8 @@ spotlight:FollowPart(workspace.NPC, "Follow this character")
 spotlight:FollowPart(character.HumanoidRootPart, "This is you!")
 ```
 
-!!! Info
-    The spotlight uses `RenderStepped` to update every frame. The radius is automatically calculated based on the part's size (uses the largest dimension). Models use their bounding box.
+!!! info
+    The spotlight uses `Heartbeat` to update every frame. The radius is automatically calculated based on the part's size (uses the largest dimension). Models use their bounding box.
 
 **Radius Calculation:**
 ```lua
@@ -203,7 +251,7 @@ Configures a sequence of tutorial steps.
 ```lua
 spotlight:SetSteps({
     { UI = gui.Button1, Text = "Click here", Shape = "Circle", Pulse = 10 },
-    { Part = workspace.Door, Text = "Go to the door", Shape = "Square" },
+    { Part = workspace.Door, Text = "Go to the door", Shape = "Circle" },
     { World = Vector3.new(0, 5, 0), Radius = 10, Text = "Final destination" }
 })
 ```
@@ -221,7 +269,7 @@ Shows the spotlight and begins the first step in the sequence.
 spotlight:SetSteps({...}):Start()
 ```
 
-!!! Note
+!!! note
     Equivalent to calling `:Show()` then `:Next()`.
 
 ---
@@ -254,7 +302,7 @@ spotlight:Skip()
 
 #### :Destroy()
 
-Completely removes the spotlight, cleans up all connections, tweens, and UI elements.
+Completely removes the spotlight, cleans up all connections, and destroys the UI.
 
 **Returns:** none
 
@@ -263,7 +311,7 @@ Completely removes the spotlight, cleans up all connections, tweens, and UI elem
 spotlight:Destroy()
 ```
 
-!!! Danger
+!!! danger
     After calling `:Destroy()`, the spotlight object cannot be reused. Create a new instance if needed.
 
 ---
@@ -274,14 +322,13 @@ spotlight:Destroy()
 
 **Type:** `Signal<number>`
 
-Fires when a step is completed, passing the step index (1-based).
+Fires when a step begins, passing the step index (1-based).
 
 **Example:**
 ```lua
 spotlight.stepCompleted:Connect(function(stepIndex)
-    print("Completed step:", stepIndex)
-    
-    -- Automatically advance after 2 seconds
+    print("Started step:", stepIndex)
+
     task.wait(2)
     spotlight:Next()
 end)
@@ -311,13 +358,13 @@ These properties are part of the internal state and generally shouldn't be acces
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `_active` | boolean | Whether the spotlight is currently visible |
-| `_pulseEnabled` | boolean | Whether pulse animation is running |
-| `_currentShape` | string | Current shape: "Circle" or "Square" |
-| `_steps` | table | Array of step configurations |
-| `_stepIndex` | number | Current step index (0-based internally) |
-| `_spotlightPos` | Vector2 | Current position on screen |
-| `_spotlightSize` | Vector2 | Current size of spotlight |
+| `active` | boolean | Whether the spotlight is currently visible |
+| `pulseEnabled` | boolean | Whether pulse animation is running |
+| `currentShape` | string | Current shape: `"Circle"`, `"Square"`, `"Rounded"`, or `"Rectangle"` |
+| `steps` | table | Array of step configurations |
+| `stepIndex` | number | Current step index (0-based internally) |
+| `spotlightPos` | Vector2 | Current position on screen |
+| `spotlightSize` | Vector2 | Current size of spotlight |
 
 ---
 
@@ -334,8 +381,8 @@ Each step in a tutorial sequence is a table with the following fields:
 | `World` | Vector3 | * | World position to spotlight |
 | `Radius` | number | No | Radius for `World` spotlights (default: 80) |
 | `Text` | string | No | Hint text to display |
-| `Shape` | string | No | "Circle" or "Square" |
-| `Padding` | number | No | Padding for `UI` spotlights (default: 0) |
+| `Shape` | string | No | `"Circle"`, `"Square"`, `"Rounded"`, or `"Rectangle"` |
+| `Padding` | number | No | Padding for `UI` spotlights (default: 15) |
 | `Pulse` | number | No | Pulse amount in pixels (disabled if omitted) |
 
 \* One of `UI`, `Part`, or `World` is required per step
@@ -347,8 +394,8 @@ Each step in a tutorial sequence is a table with the following fields:
 {
     UI = playerGui.ScreenGui.ShopButton,
     Text = "Open the shop here",
-    Shape = "Square",
-    Padding = 15,
+    Shape = "Rectangle",
+    Padding = 12,
     Pulse = 8
 }
 ```
@@ -386,7 +433,10 @@ type Spotlight = {
     SetShape: (self: Spotlight, shape: string) -> Spotlight,
     EnablePulse: (self: Spotlight, amount: number) -> Spotlight,
     DisablePulse: (self: Spotlight) -> Spotlight,
-    FocusUI: (self: Spotlight, ui: GuiObject, padding: number?, text: string?) -> Spotlight,
+    HideHint: (self: Spotlight) -> Spotlight,
+    ShowHint: (self: Spotlight) -> Spotlight,
+    FocusUI: (self: Spotlight, ui: GuiObject, padding: number?, text: string?, offsetX: number?, offsetY: number?, offsetYScale: number?) -> Spotlight,
+    FollowUI: (self: Spotlight, ui: GuiObject, padding: number?, text: string?) -> Spotlight,
     FocusWorld: (self: Spotlight, position: Vector3, radius: number, text: string?) -> Spotlight,
     FollowPart: (self: Spotlight, instance: Instance, text: string?) -> Spotlight,
     SetSteps: (self: Spotlight, steps: {SpotlightStep}) -> Spotlight,
@@ -394,7 +444,7 @@ type Spotlight = {
     Start: (self: Spotlight) -> Spotlight,
     Skip: (self: Spotlight) -> Spotlight,
     Destroy: (self: Spotlight) -> (),
-    
+
     stepCompleted: Signal<number>,
     sequenceCompleted: Signal<>,
 }
@@ -417,18 +467,20 @@ type SpotlightStep = {
 
 ---
 
-## Constants
+## Config Values
 
-Internal constants used by SpotlightUI (not configurable):
+Internal values used by SpotlightUI. All pixel-based values are authored at a 1080p baseline and scale automatically with viewport size.
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `OVERLAY_ALPHA` | 0.6 | Opacity of the dark overlay |
-| `DEFAULT_SPOTLIGHT_SIZE` | Vector2(160, 160) | Default spotlight dimensions |
-| `TWEEN_DURATION` | 0.5s | Duration of movement animations |
-| `FADE_DURATION` | 0.25s | Duration of show/hide fades |
-| `PULSE_DURATION` | 1.2s | Duration of one pulse half-cycle |
-| `WORLD_RADIUS_PADDING` | 1.5 | Multiplier for world object radius |
+| Key | Value | Description |
+|-----|-------|-------------|
+| `OverlayAlpha` | 0.6 | Opacity of the dark overlay |
+| `DefaultSpotlightSize` | Vector2(160, 160) | Default spotlight size at 1080p |
+| `HintOffset` | 20px | Gap between spotlight bottom and hint label |
+| `FadeDuration` | 0.25s | Duration of show/hide fades |
+| `PulseDuration` | 1.2s | Duration of one pulse half-cycle |
+| `WorldRadiusPadding` | 1.5 | Multiplier applied to world object radius |
+| `ArrowEdgeMargin` | 32px | Distance the off-screen arrow stays from viewport edges |
+| `StrokeThickness` | 10000 | UIStroke thickness used as the overlay mask |
 
 ---
 
@@ -445,12 +497,12 @@ spotlight:FollowPart(workspace.Terrain)  -- Error: Unsupported instance type
 
 **Off-Screen World Positions:**
 
-When using `:FocusWorld()` on a position behind the camera, the spotlight automatically hides and reappears when the position comes back into view.
+When using `:FocusWorld()` on a position behind the camera, the spotlight automatically hides and an off-screen arrow appears pointing toward the target. The spotlight reappears when the position comes back into view.
 
 ---
 
 ## Performance Notes
 
-- **RenderStepped Usage:** `:FollowPart()` uses `RenderStepped` for smooth tracking. Limit the number of simultaneously tracking spotlights.
-- **Tween Cleanup:** All tweens are automatically cleaned up via Janitor when calling `:Destroy()` or `:Hide()`.
-- **World-to-Screen Conversion:** Calculated every frame when using `:FollowPart()`. This is generally performant but avoid tracking dozens of objects simultaneously.
+- **Live UI tracking:** `:FocusUI()` and `:FollowUI()` run a `Heartbeat` connection that re-evaluates the target every frame. When the element is stationary the spring receives the same value and stays settled — effectively zero cost.
+- **Part tracking:** `:FollowPart()` calls `WorldToScreenPoint` every `Heartbeat` frame so the spotlight stays locked to the correct screen pixel regardless of camera movement. Avoid tracking more than a few parts simultaneously.
+- **Tween cleanup:** All connections are managed by Janitor and disconnected automatically on `:Hide()`, `:Next()`, and `:Destroy()`.
